@@ -1,0 +1,853 @@
+/* ===========================================================================
+   POSTCARDS & PLANS — student.js
+   =========================================================================== */
+(function () {
+  'use strict';
+  var C = window.CONTENT, E = window.Engine, P = E.Progress, api = window.API;
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = E.esc;
+
+  var S = {
+    p: null,               // progress object
+    /* answers live in api's persistent outbox, not in memory */
+    sessItems: 0, sessCorrect: 0,
+    run: null,             // active run: {kind, items, i, results, lessonId, chId, hinted}
+    simple: false,
+    stageOpen: null,
+    nonstopStage: null, nonstopSeen: {}
+  };
+
+  /* ------------------------------------------------------------- helpers */
+  function toast(msg, ms) {
+    var slot = $('#toast-slot');
+    slot.innerHTML = '<div class="toast">' + esc(msg) + '</div>';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { slot.innerHTML = ''; }, ms || 2600);
+  }
+  function modal(html) {
+    var slot = $('#modal-slot');
+    slot.innerHTML = '<div class="modal"><div class="modal-card">' + html + '</div></div>';
+    slot.querySelector('.modal').addEventListener('click', function (ev) {
+      if (ev.target === this) slot.innerHTML = '';
+    });
+    var b = slot.querySelector('[data-close]');
+    if (b) b.addEventListener('click', function () { slot.innerHTML = ''; });
+  }
+  function pct(x) { return Math.round((x || 0) * 100); }
+
+  /* --------------------------------------------------------------- sync */
+  function sync() {
+    if (!S.p) return Promise.resolve();
+    S.p._readiness = P.readiness(S.p);      /* derived column for the sheet */
+    return api.save(S.p).catch(function () { return { ok: false }; });
+  }
+  /* Ten seconds, not one and a half. Forty students answering every few
+     seconds would otherwise each rewrite their sheet row constantly and
+     queue behind the script lock. Nothing is at risk in the gap — answers
+     sit in the outbox from the instant they are given. */
+  var syncSoon = (function () {
+    var t;
+    return function () { clearTimeout(t); t = setTimeout(sync, 10000); };
+  })();
+
+  /* ------------------------------------------------------- connection
+     Students never configure anything. The address ships with the page, so
+     the session is connected from the first click. If the network drops we
+     keep working, hold the unsent answers, and reconnect on our own.
+
+     Students are never shown connection state. A dropped network is not their
+     problem to solve: answers are queued on the device the moment they are
+     given, the app retries on its own, and the teacher console is where a
+     genuine outage surfaces. The only place a student can see it is Settings,
+     if they go looking. */
+  function paintLink() {
+    $('#modebar-slot').innerHTML = '';
+  }
+  api.onModeChange = function () { paintLink(); };
+
+  /* Quiet reconnect: flip back to cloud and let a real save prove it. */
+  setInterval(function () {
+    if (!S.p) return;
+    if (api.mode !== 'cloud') api.retryCloud();
+    if (api.pendingCount()) sync();
+  }, 15000);
+
+  /* =====================================================================
+     LOGIN
+     ===================================================================== */
+  var mode = 'in';
+  function setMode(m) {
+    mode = m;
+    $('#tab-in').classList.toggle('on', m === 'in');
+    $('#tab-new').classList.toggle('on', m === 'new');
+    $('#wrap-name').classList.toggle('hidden', m !== 'new');
+    $('#btn-go').textContent = m === 'in' ? 'Log in' : 'Create my account';
+    $('#f-pw').setAttribute('autocomplete', m === 'in' ? 'current-password' : 'new-password');
+    say('');
+  }
+  function say(text, bad) {
+    var m = $('#login-msg');
+    m.className = 'msg ' + (bad ? 'bad' : 'info') + (text ? '' : ' hidden');
+    m.textContent = text;
+  }
+  $('#tab-in').addEventListener('click', function () { setMode('in'); });
+  $('#tab-new').addEventListener('click', function () { setMode('new'); });
+
+  function go() {
+    var id = $('#f-id').value.trim().toLowerCase();
+    var pw = $('#f-pw').value;
+    var name = $('#f-name').value.trim();
+    if (!id) return say('Enter a student ID.', true);
+    if (!/^[a-z0-9._-]{3,24}$/.test(id)) return say('Use 3–24 letters, numbers, dots or dashes — no spaces.', true);
+    if (pw.length < 4) return say('Your password needs at least 4 characters.', true);
+    if (mode === 'new' && !name) return say('Enter the name your teacher will see.', true);
+    $('#btn-go').disabled = true;
+    say(mode === 'new' ? 'Creating your account…' : 'Checking…');
+    /* Apps Script can take a few seconds to wake up. Say so, rather than
+       leaving a teenager looking at a frozen button. */
+    var slow = setTimeout(function () {
+      say('Still working — the class server is waking up. This can take a few seconds.');
+    }, 4000);
+    var req = mode === 'new' ? api.register(id, pw, name) : api.login(id, pw);
+    req.then(function (r) {
+      clearTimeout(slow);
+      $('#btn-go').disabled = false;
+      if (!r || !r.ok) return say((r && r.error) || 'Something went wrong. Try again.', true);
+      start(r.progress || P.blank(id, name || id));
+    }).catch(function (e) {
+      clearTimeout(slow);
+      $('#btn-go').disabled = false;
+      say('Could not reach the server: ' + e.message, true);
+    });
+  }
+  $('#btn-go').addEventListener('click', go);
+  ['f-id', 'f-pw', 'f-name'].forEach(function (k) {
+    $('#' + k).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+  });
+
+  /* =====================================================================
+     START
+     ===================================================================== */
+  function start(progress) {
+    S.p = progress;
+    if (!S.p.stats) S.p.stats = { seen: 0, correct: 0, byTag: {} };
+    if (!S.p.review) S.p.review = {};
+    if (!S.p.badges) S.p.badges = [];
+    var isNewDay = P.touchDay(S.p);
+    $('#screen-login').classList.add('hidden');
+    $('#screen-app').classList.remove('hidden');
+    paintLink();
+    paintHeader();
+    show('map');
+    api.startSession(S.p.studentId);
+    var earned = P.checkBadges(S.p);
+    sync();
+    if (isNewDay && S.p.streak > 1) toast('Day ' + S.p.streak + ' in a row. Keep the streak alive.');
+    if (earned.length) setTimeout(function () { celebrate(earned[0]); }, 900);
+  }
+
+  function logout() {
+    api.endSession(S.p.studentId, S.sessItems, S.sessCorrect);
+    sync().then(function () { api.clearToken(); location.reload(); });
+  }
+  $('#btn-out').addEventListener('click', logout);
+  /* fetch() is cancelled when the tab goes; sendBeacon survives it. */
+  function flushOnExit() {
+    if (!S.p) return;
+    api.endSession(S.p.studentId, S.sessItems, S.sessCorrect);
+    if (!api.flushBeacon(S.p)) sync();
+  }
+  window.addEventListener('pagehide', flushOnExit);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden' && S.p && api.pendingCount()) {
+      api.flushBeacon(S.p);
+    }
+  });
+
+  /* ----------------------------------------------------------- header UI */
+  function paintHeader() {
+    var p = S.p, r = P.rank(p), ready = P.readiness(p);
+    $('#hdr-name').textContent = p.displayName;
+    $('#hdr-rank').textContent = 'Level ' + r.n + ' · ' + r.name;
+    $('#hdr-ready').textContent = ready + '%';
+    $('#hdr-bar').style.width = ready + '%';
+    $('#hdr-streak').textContent = p.streak || 0;
+    $('#hdr-xp').textContent = p.xp || 0;
+    var due = P.dueReview(p).length;
+    $('#nav-review').textContent = due ? ' (' + due + ')' : '';
+    $('#nav-test').textContent = p.assignment && !p.assignment.done ? ' •' : '';
+  }
+
+  /* --------------------------------------------------------------- views */
+  var VIEWS = ['map', 'play', 'review', 'pass', 'test', 'settings'];
+  function show(v) {
+    VIEWS.forEach(function (x) { $('#view-' + x).classList.toggle('hidden', x !== v); });
+    document.querySelectorAll('.nav button[data-view]').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.view === v);
+    });
+    if (v === 'map') paintMap();
+    if (v === 'review') paintReview();
+    if (v === 'pass') paintPassport();
+    if (v === 'test') paintTest();
+    if (v === 'settings') paintSettings();
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+  document.querySelectorAll('.nav button[data-view]').forEach(function (b) {
+    b.addEventListener('click', function () { show(b.dataset.view); });
+  });
+
+  /* =====================================================================
+     ROADMAP
+     ===================================================================== */
+  function stagePct(st) {
+    var lm = 0;
+    st.lessons.forEach(function (l) { lm += Math.min(1, (S.p.lessons[l.id] || {}).best || 0); });
+    lm /= st.lessons.length;
+    var cm = Math.min(1, (S.p.challenges[st.challenge.id] || {}).best || 0);
+    return Math.round((lm * 0.6 + cm * 0.4) * 100);
+  }
+
+  /* What should this student do next? One answer, always. */
+  function nextAction(p) {
+    if (p.assignment && !p.assignment.done) {
+      return { kind: 'test', label: 'Take your level check', sub: p.assignment.itemIds.length + ' questions set by your teacher' };
+    }
+    for (var i = 0; i < C.STAGES.length; i++) {
+      var st = C.STAGES[i];
+      for (var j = 0; j < st.lessons.length; j++) {
+        var ls = st.lessons[j], rec = p.lessons[ls.id];
+        if (!rec || rec.best < E.PASS_LESSON) {
+          return { kind: 'lesson', st: st, id: ls.id, label: ls.name,
+                   sub: st.gate + ' · ' + st.name + ' · ' + ls.cefr };
+        }
+      }
+      var ch = p.challenges[st.challenge.id];
+      if (!ch || ch.best < E.PASS_CHALLENGE) {
+        return { kind: 'challenge', st: st, id: st.id, label: st.challenge.name,
+                 sub: st.gate + ' · pass at 75% to clear this leg' };
+      }
+    }
+    var due = P.dueReview(p).length;
+    if (due) return { kind: 'review', label: 'Clear your standby list', sub: due + (due === 1 ? ' question is' : ' questions are') + ' due for review' };
+    return null;
+  }
+
+  function paintMap() {
+    var p = S.p, r = P.rank(p);
+    var next = nextAction(p);
+
+    /* Open the leg they are actually working in, so a new student is not
+       met by eight closed boxes. */
+    if (S.stageOpen === null && next && next.st) S.stageOpen = next.st.id;
+
+    var html = '';
+    if (next) {
+      html += '<button class="resume" id="resume">' +
+        (next.st ? E.artBand(next.st.art, 'resume-art') : '') +
+        '<span class="resume-t">' +
+          '<span class="kicker">' + (next.kind === 'challenge' ? 'Next checkpoint' : next.kind === 'test' ? 'From your teacher' : next.kind === 'review' ? 'Standby' : 'Pick up where you left off') + '</span>' +
+          '<span class="resume-n">' + esc(next.label) + '</span>' +
+          '<span class="resume-s">' + esc(next.sub) + '</span>' +
+        '</span><span class="resume-go">Start →</span></button>';
+    } else {
+      html += '<div class="resume done"><span class="resume-t">' +
+        '<span class="kicker">All eight legs cleared</span>' +
+        '<span class="resume-n">You are a Time Traveller</span>' +
+        '<span class="resume-s">Nothing is due. Replay any leg to push your score higher.</span>' +
+        '</span></div>';
+    }
+
+    html += '<div class="sect-h"><div>' +
+      '<h2>Your itinerary</h2>' +
+      '<p style="color:var(--ink-2);font-size:.92rem;margin-top:4px">' + esc(r.note) + '</p>' +
+      '</div><span class="pill on">' + P.stageClearedCount(p) + ' of 8 legs cleared</span></div>';
+
+    html += '<div class="gates">';
+    C.STAGES.forEach(function (st) {
+      var unlocked = true;                       /* every leg is open */
+      var chal = p.challenges[st.challenge.id];
+      var cleared = chal && chal.best >= E.PASS_CHALLENGE;
+      var current = next && next.st && next.st.id === st.id;
+      var pc = stagePct(st);
+      var open = S.stageOpen === st.id;
+      var cls = 'gate' + (cleared ? ' done' : current ? ' open' : '') + (open ? ' exp' : '');
+
+      html += '<div class="' + cls + '" data-stage="' + st.id + '"><div class="dot"></div><div class="gate-card">';
+      html += '<button class="gate-head" data-toggle="' + st.id + '">' +
+        E.artBand(st.art, 'gate-art') +
+        '<div class="gate-meta">' +
+          '<div class="gate-line1">' +
+            '<span class="gate-n">' + esc(st.gate) + '</span>' +
+            '<span class="gate-name">' + esc(st.name) + '</span>' +
+            '<span class="pill">' + esc(st.cefr) + '</span>' +
+            (cleared ? '<span class="pill good">Cleared</span>' : current ? '<span class="pill on">You are here</span>' : '') +
+          '</div>' +
+          '<p class="gate-blurb">' + esc(st.blurb) + '</p>' +
+          '<div class="gate-prog"><div class="bar"><span style="width:' + pc + '%"></span></div>' +
+          '<span class="gate-pct">' + pc + '%</span></div>' +
+        '</div><span class="caret">›</span></button>';
+
+      /* Resource strip, directly under the stage header. Buttons appear only
+         for the media that actually exists, and the whole strip disappears
+         if a stage has none — so episodes and decks can be added one by one. */
+      if (unlocked && (st.podcast || st.slides || st.video)) {
+        var m = (p.podcasts || {})[st.id] || {};
+        html += '<div class="gate-res" data-res="' + st.id + '">';
+        if (st.video) {
+          html += '<button class="res' + (m.videoOpens ? ' done' : '') + '" data-act="yt" data-stage="' + st.id + '">' +
+            '<span class="res-i">▶</span>Video</button>';
+        }
+        if (st.slides) {
+          html += '<a class="res' + (m.slidesOpens ? ' done' : '') + '" href="' + esc(st.slides) + '" target="_blank" rel="noopener" data-act="pdf" data-stage="' + st.id + '">' +
+            '<span class="res-i">▤</span>Slides</a>';
+        }
+        if (st.podcast) {
+          html += '<button class="res' + (m.done ? ' done' : '') + '" data-act="pod" data-stage="' + st.id + '">' +
+            '<span class="res-i">' + (m.done ? '✓' : '♪') + '</span>Podcast' +
+            (m.done ? '' : m.seconds ? '<span class="res-x">' + Math.round(m.seconds / 60) + 'm in</span>' : '') +
+            '</button>';
+        }
+        html += '<div class="res-drop" id="drop-' + st.id + '"></div></div>';
+      }
+
+      if (open && unlocked) {
+        html += '<div class="gate-body">';
+        st.lessons.forEach(function (ls) {
+          var rec = p.lessons[ls.id];
+          var done = rec && rec.best >= E.PASS_LESSON;
+          html += '<button class="lrow' + (done ? ' done' : '') + '" data-lesson="' + ls.id + '">' +
+            '<span class="lrow-tick"></span>' +
+            '<span class="lrow-txt"><span class="lrow-name">' + esc(ls.name) + '</span>' +
+            '<span class="lrow-sub">' + esc(ls.cefr) + ' · ' + ls.items.length + ' questions</span></span>' +
+            '<span class="lrow-score">' + (rec ? pct(rec.best) + '%' : '') + '</span></button>';
+        });
+        var cu = P.challengeUnlocked(p, st);
+        var crec = p.challenges[st.challenge.id];
+        html += '<button class="lrow chal' + (cleared ? ' done' : '') + '" data-challenge="' + st.id + '"' + (cu ? '' : ' disabled') + '>' +
+          '<span class="lrow-tick"></span>' +
+          '<span class="lrow-txt"><span class="lrow-name">' + esc(st.challenge.name) + '</span>' +
+          '<span class="lrow-sub">' + (cu ? st.challenge.items.length + ' questions · pass at 75%' : 'Finish all three lessons to unlock') + '</span></span>' +
+          '<span class="lrow-score">' + (crec ? pct(crec.best) + '%' : '') + '</span></button>';
+        html += '</div>';
+      }
+      html += '</div></div>';
+    });
+    html += '</div>';
+    $('#view-map').innerHTML = html;
+
+    var res = $('#resume');
+    if (res) res.addEventListener('click', function () {
+      if (next.kind === 'lesson') openLesson(next.id);
+      else if (next.kind === 'challenge') startChallenge(next.id);
+      else if (next.kind === 'review') show('review');
+      else if (next.kind === 'test') show('test');
+    });
+    $('#view-map').querySelectorAll('[data-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        S.stageOpen = S.stageOpen === b.dataset.toggle ? null : b.dataset.toggle;
+        paintMap();
+      });
+    });
+    /* Media use is progress too — a student stuck on a gate who never opened
+       its introduction is a different problem from one who did. */
+    function mediaRec(sid) {
+      if (!S.p.podcasts) S.p.podcasts = {};
+      return S.p.podcasts[sid] || (S.p.podcasts[sid] = { plays: 0, seconds: 0, done: false });
+    }
+
+    $('#view-map').querySelectorAll('.res[data-act]').forEach(function (btn) {
+      var sid = btn.dataset.stage, act = btn.dataset.act;
+      var st = C.STAGES.filter(function (x) { return x.id === sid; })[0];
+
+      if (act === 'pdf') {
+        btn.addEventListener('click', function () {
+          var r = mediaRec(sid);
+          r.slidesOpens = (r.slidesOpens || 0) + 1;
+          r.last = new Date().toISOString();
+          syncSoon();
+        });
+        return;
+      }
+
+      btn.addEventListener('click', function () {
+        var drop = $('#drop-' + sid);
+        var r = mediaRec(sid);
+
+        if (act === 'yt') {
+          r.videoOpens = (r.videoOpens || 0) + 1;
+          r.last = new Date().toISOString();
+          syncSoon();
+          openVideo(st);
+          return;
+        }
+
+        /* podcast: toggle an inline player under the strip */
+        if (drop.dataset.open === 'pod') { drop.dataset.open = ''; drop.innerHTML = ''; return; }
+        drop.dataset.open = 'pod';
+        drop.innerHTML = '<div class="pod"><div class="pod-h">' +
+          '<span class="pod-t"><span class="pod-n">' + esc(st.name) + ' — the introduction</span>' +
+          '<span class="pod-s">' + (r.done ? 'You have listened to this one' :
+            r.seconds ? 'Picked up ' + Math.round(r.seconds / 60) + ' min in' :
+            'About ten minutes. Listen before the lessons.') + '</span></span></div>' +
+          '<audio class="pod-a" controls preload="none" src="' + esc(st.podcast) + '"></audio></div>';
+
+        var a = drop.querySelector('audio');
+        var mark = 0;
+        if (r.seconds && !r.done) { a.addEventListener('loadedmetadata', function () {
+          if (r.seconds < a.duration - 5) { a.currentTime = r.seconds; mark = r.seconds; }
+        }); }
+        a.addEventListener('play', function () { r.plays++; r.last = new Date().toISOString(); syncSoon(); });
+        a.addEventListener('pause', syncSoon);
+        a.addEventListener('timeupdate', function () {
+          if (a.currentTime - mark < 10) return;
+          r.seconds = Math.round(r.seconds + (a.currentTime - mark));
+          mark = a.currentTime;
+        });
+        a.addEventListener('ended', function () {
+          r.done = true; sync(); toast('Episode finished. Now try the lessons.');
+        });
+        a.play().catch(function () {});
+      });
+    });
+
+    $('#view-map').querySelectorAll('[data-lesson]').forEach(function (b) {
+      b.addEventListener('click', function () { openLesson(b.dataset.lesson); });
+    });
+    $('#view-map').querySelectorAll('[data-challenge]').forEach(function (b) {
+      b.addEventListener('click', function () { startChallenge(b.dataset.challenge); });
+    });
+  }
+
+  /* =====================================================================
+     THEORY
+     ===================================================================== */
+  function openLesson(lessonId) {
+    var ls = E.Bank.lesson(lessonId);
+    var paras = (S.simple && ls.theory.simple) ? ls.theory.simple : ls.theory.body;
+    var st = E.Bank.stage(+lessonId.charAt(1));
+    var html = '<div class="play">' +
+      '<div class="play-top"><button class="btn ghost sm" id="p-back">← Roadmap</button>' +
+      '<span class="grow"></span><span class="qcount">Theory</span></div>' +
+      '<div class="card theory">' +
+      E.artBand(st && st.art) +
+      '<p class="kicker">' + esc(ls.cefr) + ' · Lesson</p>' +
+      '<h3>' + esc(ls.name) + '</h3>' +
+      '<p class="key">' + ls.theory.key + '</p>' +
+      '<button class="btn sm simple-btn" id="p-simple">' + (S.simple ? 'Show the full explanation' : 'Explain this more simply') + '</button>' +
+      '<div class="prose">' + paras.map(function (t) { return '<p>' + t + '</p>'; }).join('') + '</div>';
+    if (ls.theory.examples) {
+      html += '<div class="exlist">' + ls.theory.examples.map(function (e) {
+        return '<div><div class="s">' + e.s + '</div><div class="g">' + esc(e.g) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    html += '<button class="btn primary wide" id="p-start">Start the ' + ls.items.length + ' questions →</button>' +
+      '</div></div>';
+    $('#view-play').innerHTML = html;
+    show('play');
+    $('#p-back').addEventListener('click', function () { show('map'); });
+    $('#p-simple').addEventListener('click', function () { S.simple = !S.simple; openLesson(lessonId); });
+    $('#p-start').addEventListener('click', function () { startRun('lesson', ls.items, { lessonId: lessonId, title: ls.name }); });
+  }
+
+  /* =====================================================================
+     RUNNER
+     ===================================================================== */
+  function startRun(kind, items, meta) {
+    S.run = {
+      kind: kind, items: items.slice(), i: 0, results: [],
+      lessonId: meta.lessonId, chId: meta.chId, title: meta.title,
+      hintedAny: false, t0: 0
+    };
+    if (kind === 'challenge' || kind === 'test') S.run.items = E.shuffle(S.run.items);
+    show('play');
+    renderQ();
+  }
+
+  function startChallenge(stageId) {
+    var st = C.STAGES.filter(function (s) { return s.id === stageId; })[0];
+    S.nonstopStage = stageId;
+    startRun('challenge', st.challenge.items, { chId: st.challenge.id, title: st.challenge.name });
+  }
+
+  /* Types where seven seconds is a fair target. Construction tasks (build,
+     order, sort) take longer by their nature, so they run untimed rather
+     than dangling a bonus nobody can reach. */
+  var TIMED_TYPES = { choose: 1, equiv: 1, judge: 1, gap: 1, table: 1, pick: 1, spot: 1 };
+
+  function renderQ() {
+    var r = S.run, item = r.items[r.i];
+    if (r.cleanup) { r.cleanup(); r.cleanup = null; }
+    var prog = Math.round(100 * r.i / r.items.length);
+    var canHint = r.kind === 'lesson' || r.kind === 'review';
+    var timed = r.kind !== 'test' && !!TIMED_TYPES[item.type];
+    var combo = r.combo || 0;
+
+    $('#view-play').innerHTML = '<div class="play">' +
+      '<div class="play-top">' +
+        '<button class="btn ghost sm" id="p-quit">✕</button>' +
+        '<div class="bar thin"><span style="width:' + prog + '%"></span></div>' +
+        (combo >= 3 ? '<span class="combo">▲ ' + combo + ' in a row</span>' : '') +
+        '<span class="qcount">' + (r.i + 1) + ' / ' + r.items.length + '</span>' +
+        (timed ?
+          '<div class="timer" id="timer" title="Answer inside 7 seconds for a time bonus">' +
+            '<svg width="38" height="38" viewBox="0 0 38 38">' +
+              '<circle class="track" cx="19" cy="19" r="15" fill="none" stroke-width="4"></circle>' +
+              '<circle class="run" id="timer-run" cx="19" cy="19" r="15" fill="none" stroke-width="4" ' +
+                'stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="0"></circle>' +
+            '</svg><b id="timer-n">7</b></div>' : '') +
+      '</div>' +
+      '<div class="card qcard">' +
+        '<div class="qtype"><span>' + esc(E.TYPE_LABEL[item.type] || 'Question') + '</span><span class="lv">' + esc(item.level) + '</span></div>' +
+        '<div id="qhost"></div>' +
+        '<div id="feedback" role="status" aria-live="polite"></div>' +
+        '<div class="qfoot">' +
+          (canHint ? '<button class="btn sm" id="p-hint">Hint</button>' : '') +
+          '<span class="grow"></span>' +
+          '<button class="btn primary" id="p-check" disabled>Check</button>' +
+        '</div>' +
+      '</div></div>';
+
+    var host = $('#qhost');
+    var view = E.mount(item, host);
+    r.t0 = Date.now();
+    var answered = false;
+    var tick = null;
+
+    if (timed) {
+      var ring = $('#timer-run'), num = $('#timer-n'), box = $('#timer');
+      var CIRC = 94.2;
+      tick = setInterval(function () {
+        var left = Math.max(0, E.SPEED_MS - (Date.now() - r.t0));
+        ring.setAttribute('stroke-dashoffset', String(CIRC * (1 - left / E.SPEED_MS)));
+        if (left > 0) {
+          num.textContent = Math.ceil(left / 1000);
+        } else {
+          box.classList.add('cold');
+          num.textContent = '—';
+          clearInterval(tick); tick = null;
+        }
+      }, 100);
+    }
+    function stopTimer() { if (tick) { clearInterval(tick); tick = null; } }
+
+    host.addEventListener('respond', function () {
+      if (!answered) $('#p-check').disabled = !view.hasResponse();
+    });
+
+    $('#p-quit').addEventListener('click', function () {
+      if (r.results.length && !confirm('Leave now? This attempt will not be saved.')) return;
+      stopTimer(); S.run = null; show('map');
+    });
+
+    var hintBtn = $('#p-hint');
+    if (hintBtn) hintBtn.addEventListener('click', function () {
+      var rem = C.REMEDIATION[item.tag];
+      hintBtn.disabled = true;
+      r.hintedAny = true; r.thisHinted = true;
+      $('#feedback').innerHTML = '<div class="verdict" style="background:var(--gold-soft);border:1px solid var(--gold)">' +
+        '<div class="verdict-h" style="color:var(--gold)">The principle behind this one</div>' +
+        '<div class="verdict-w">' + rem.principle + '</div></div>';
+    });
+
+    $('#p-check').addEventListener('click', function () {
+      if (answered) return next();
+      answered = true;
+      var ms = Date.now() - r.t0;
+      stopTimer();
+      var out = view.check();
+      view.lock();
+      var hinted = !!r.thisHinted; r.thisHinted = false;
+      var fast = timed && !hinted && out.correct && ms <= E.SPEED_MS;
+
+      var row = P.recordAttempt(S.p, item, out.correct, ms, hinted, fast);
+      row.given = String(out.givenText).slice(0, 160);
+      row.expected = String(out.expectedText).slice(0, 160);
+      row.mode = r.kind;
+      api.enqueue([row]);
+      S.sessItems++;
+      if (out.correct) { S.sessCorrect++; r.combo = (r.combo || 0) + 1; } else { r.combo = 0; }
+      r.results.push({ item: item, correct: out.correct, given: out.givenText, expected: out.expectedText });
+
+      $('#feedback').innerHTML =
+        '<div class="verdict ' + (out.correct ? 'ok' : 'no') + '">' +
+          '<div class="verdict-h">' + (out.correct ? '✓ Correct' : '✕ Not quite') +
+            (fast ? '<span class="bonus-note">⚡ time bonus +' + E.XP_SPEED + '</span>' : '') + '</div>' +
+          (out.correct ? '' : '<div class="verdict-exp">You chose: ' + esc(out.givenText) + '<br>Answer: ' + esc(out.expectedText) + '</div>') +
+          '<div class="verdict-w">' + item.why + '</div>' +
+        '</div>';
+
+      if (out.correct && S.p.lastGain) {
+        var f = E.el('span', 'xpfloat' + (fast ? '' : ' plain'), '+' + S.p.lastGain);
+        $('.qfoot').appendChild(f);
+        setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 1200);
+      }
+
+      var btn = $('#p-check');
+      btn.textContent = r.i + 1 >= r.items.length ? 'See your result' : 'Next →';
+      btn.disabled = false;
+      paintHeader();
+      syncSoon();
+      $('#feedback').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+
+    function next() {
+      stopTimer();
+      r.i++;
+      if (r.i >= r.items.length) finishRun(); else renderQ();
+    }
+
+    /* Enter checks, then Enter advances — so a keyboard user never reaches
+       for the mouse between questions. */
+    function onKey(e) {
+      if (e.key !== 'Enter' || e.target.tagName === 'INPUT') return;
+      var btn = $('#p-check');
+      if (btn && !btn.disabled) { e.preventDefault(); btn.click(); }
+    }
+    document.addEventListener('keydown', onKey);
+    r.cleanup = function () { document.removeEventListener('keydown', onKey); };
+  }
+
+  /* =====================================================================
+     RESULT
+     ===================================================================== */
+  function finishRun() {
+    var r = S.run;
+    if (r.cleanup) { r.cleanup(); r.cleanup = null; }
+    var correct = r.results.filter(function (x) { return x.correct; }).length;
+    var score = correct / r.results.length;
+    var passed, head, note;
+
+    if (r.kind === 'lesson') {
+      P.finishLesson(S.p, r.lessonId, score);
+      passed = score >= E.PASS_LESSON;
+      head = passed ? 'Lesson cleared' : 'Not yet — go again';
+      note = passed ? 'You need 60% to clear a lesson, and you have it. Anything you missed is now in Standby and will come back.'
+                    : 'You need 60% to clear this one. Read the theory again and retry — the questions stay the same, so the misses are worth studying.';
+    } else if (r.kind === 'challenge') {
+      P.finishChallenge(S.p, r.chId, score, r.hintedAny);
+      passed = score >= E.PASS_CHALLENGE;
+      head = score >= 1 ? 'Perfect. Window seat.' : passed ? 'Checkpoint cleared' : 'Checkpoint held';
+      note = passed ? 'That leg is cleared. Every leg is open, so go wherever your class is working.' : 'You need 75% to clear this leg. Go back to the lessons you lost marks on — they are listed below.';
+      if (passed && S.nonstopStage) {
+        var st = C.STAGES.filter(function (s) { return s.id === S.nonstopStage; })[0];
+        var allHere = st.lessons.every(function (l) { return S.nonstopSeen[l.id]; });
+        if (allHere) S.p._nonstop = true;
+      }
+    } else if (r.kind === 'test') {
+      if (!S.p.assignment) S.p.assignment = { level: 1, itemIds: [] };
+      S.p.assignment.done = true;
+      S.p.assignment.score = score;
+      S.p.assignment.completedAt = new Date().toISOString();
+      passed = score >= 0.7;
+      head = 'Level check submitted';
+      note = 'Your teacher can see this result. ' + (passed ? 'It confirms the level on your roadmap.' : 'It came out below your roadmap level, so expect some review work.');
+    } else {
+      passed = true;
+      head = 'Standby cleared';
+      note = 'Items you get right twice in a row leave Standby for good.';
+    }
+    if (r.lessonId) S.nonstopSeen[r.lessonId] = true;
+
+    var misses = r.results.filter(function (x) { return !x.correct; });
+    var html = '<div class="play"><div class="card result">' +
+      '<div class="score-ring" style="--p:' + pct(score) + '"><i>' + pct(score) + '%</i></div>' +
+      '<h3>' + esc(head) + '</h3>' +
+      '<p>' + esc(note) + '</p>';
+
+    if (misses.length) {
+      html += '<div class="misslist">' + misses.map(function (m) {
+        var rem = C.REMEDIATION[m.item.tag];
+        return '<div class="miss"><b>' + esc(rem ? rem.name : m.item.tag) + '</b>' + m.item.why + '</div>';
+      }).join('') + '</div>';
+    }
+    html += '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">' +
+      '<button class="btn primary" id="r-map">Back to the roadmap</button>' +
+      (r.kind === 'lesson' || r.kind === 'challenge' ? '<button class="btn" id="r-again">Try again</button>' : '') +
+      '</div></div></div>';
+
+    $('#view-play').innerHTML = html;
+    var earned = P.checkBadges(S.p);
+    paintHeader();
+    sync();
+
+    $('#r-map').addEventListener('click', function () { S.run = null; show('map'); });
+    var again = $('#r-again');
+    if (again) again.addEventListener('click', function () {
+      if (r.kind === 'lesson') startRun('lesson', E.Bank.lesson(r.lessonId).items, { lessonId: r.lessonId, title: r.title });
+      else startChallenge(S.nonstopStage);
+    });
+    if (earned.length) setTimeout(function () { celebrate(earned[0], earned.slice(1)); }, 600);
+  }
+
+  function celebrate(badge, rest) {
+    modal('<div class="seal">★</div>' +
+      '<p class="kicker">Keepsake collected</p>' +
+      '<h3 style="font-size:1.4rem">' + esc(badge.name) + '</h3>' +
+      '<p style="color:var(--ink-2);font-size:.95rem">' + esc(badge.perk) + '</p>' +
+      '<p class="tiny" style="color:var(--ink-3)">' + esc(badge.how) + '</p>' +
+      '<button class="btn primary wide" data-close>Collect</button>');
+    if (rest && rest.length) {
+      var b = document.querySelector('[data-close]');
+      b.addEventListener('click', function () { setTimeout(function () { celebrate(rest[0], rest.slice(1)); }, 260); });
+    }
+  }
+
+  /* YouTube opens inside the app, with a plain link underneath for any
+     browser or network that blocks the embed. */
+  function ytId(url) {
+    var m = String(url || '').match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{6,})/);
+    return m ? m[1] : '';
+  }
+  function openVideo(st) {
+    var id = ytId(st.video);
+    modal('<p class="kicker">' + esc(st.gate) + ' · video</p>' +
+      '<h3 style="font-size:1.2rem">' + esc(st.name) + '</h3>' +
+      (id ? '<div class="ytbox"><iframe src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0" ' +
+        'title="' + esc(st.name) + '" frameborder="0" allowfullscreen ' +
+        'allow="accelerometer; encrypted-media; picture-in-picture"></iframe></div>' : '') +
+      '<a class="btn wide" href="' + esc(st.video) + '" target="_blank" rel="noopener">Open on YouTube</a>' +
+      '<button class="btn ghost wide" data-close>Close</button>');
+  }
+
+  /* =====================================================================
+     STANDBY (spaced review)
+     ===================================================================== */
+  function paintReview() {
+    var due = P.dueReview(S.p);
+    var all = Object.keys(S.p.review).filter(function (id) { return E.Bank.item(id); });
+    var html = '<div class="sect-h"><div><h2>Standby list</h2>' +
+      '<p style="color:var(--ink-2);font-size:.92rem;margin-top:4px">Questions you got wrong come back here. Get one right twice in a row and it leaves for good.</p></div></div>';
+
+    if (!all.length) {
+      html += '<div class="card empty">Nothing on standby. Every question you have answered wrong has been cleared.</div>';
+    } else {
+      html += '<div class="card" style="padding:var(--pad);display:flex;flex-direction:column;gap:12px">' +
+        '<div style="display:flex;gap:14px;flex-wrap:wrap">' +
+        '<span class="pill' + (due.length ? ' bad' : ' good') + '">' + due.length + ' due now</span>' +
+        '<span class="pill">' + all.length + ' on the list</span>' +
+        '<span class="pill gold">' + (S.p.reclaimed || 0) + ' reclaimed</span></div>';
+      var tagCount = {};
+      all.forEach(function (id) { var t = E.Bank.item(id).tag; tagCount[t] = (tagCount[t] || 0) + 1; });
+      html += '<div style="display:flex;flex-direction:column;gap:7px">' + Object.keys(tagCount).sort(function (a, b) { return tagCount[b] - tagCount[a]; })
+        .map(function (t) {
+          return '<div style="display:flex;justify-content:space-between;gap:12px;font-size:.9rem">' +
+            '<span>' + esc((C.REMEDIATION[t] || {}).name || t) + '</span>' +
+            '<span class="num" style="color:var(--ink-3);font-family:var(--f-mono);font-size:.82rem">' + tagCount[t] + '</span></div>';
+        }).join('') + '</div>';
+      html += due.length
+        ? '<button class="btn primary wide" id="rv-go">Clear ' + Math.min(due.length, 12) + ' now</button>'
+        : '<p class="tiny">Nothing is due yet. Items come back after a session or two — that gap is what makes them stick.</p>';
+      html += '</div>';
+    }
+    $('#view-review').innerHTML = html;
+    var g = $('#rv-go');
+    if (g) g.addEventListener('click', function () {
+      startRun('review', E.shuffle(due).slice(0, 12).map(E.Bank.item), { title: 'Standby' });
+    });
+  }
+
+  /* =====================================================================
+     PASSPORT
+     ===================================================================== */
+  function paintPassport() {
+    var p = S.p, cleared = P.stageClearedCount(p);
+    var html = '<div class="sect-h"><div><h2>Keepsakes</h2>' +
+      '<p style="color:var(--ink-2);font-size:.92rem;margin-top:4px">One stamp for every leg cleared, and the keepsakes you have collected along the way.</p></div>' +
+      '<span class="pill gold">' + p.badges.length + ' of ' + C.BADGES.length + ' keepsakes</span></div>';
+
+    html += '<div class="card" style="padding:var(--pad);margin-bottom:16px"><p class="kicker" style="margin-bottom:12px">Leg stamps</p><div class="stamps">';
+    C.STAGES.forEach(function (st) {
+      var got = (p.challenges[st.challenge.id] || {}).best >= E.PASS_CHALLENGE;
+      html += '<div class="stamp' + (got ? ' got' : '') + '"><b>' + esc(st.name) + '</b><span>' + esc(st.gate) + '</span>' +
+        (got ? '<span>✓ cleared</span>' : '') + '</div>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="card" style="padding:var(--pad);margin-bottom:16px">' +
+      '<p class="kicker" style="margin-bottom:6px">Rank</p>' +
+      '<h3 style="font-size:1.3rem">Level ' + cleared + ' · ' + esc(P.rank(p).name) + '</h3>' +
+      '<p style="color:var(--ink-2);font-size:.93rem;margin-top:4px">' + esc(P.rank(p).note) + '</p>' +
+      '<div style="margin-top:12px"><div class="bar gold"><span style="width:' + (cleared / 8 * 100) + '%"></span></div></div></div>';
+
+    html += '<p class="kicker" style="margin-bottom:10px">Keepsakes</p><div class="badges">';
+    C.BADGES.forEach(function (b) {
+      var got = p.badges.indexOf(b.id) >= 0;
+      html += '<div class="badge ' + (got ? 'got' : 'locked') + '">' +
+        '<span class="badge-i">' + (got ? '★' : '·') + '</span>' +
+        '<span><span class="badge-n">' + esc(b.name) + '</span>' +
+        '<span class="badge-p">' + esc(b.perk) + '</span>' +
+        '<span class="badge-h">' + esc(b.how) + '</span></span></div>';
+    });
+    html += '</div>';
+    $('#view-pass').innerHTML = html;
+  }
+
+  /* =====================================================================
+     LEVEL CHECK
+     ===================================================================== */
+  function paintTest() {
+    var a = S.p.assignment;
+    var html = '<div class="sect-h"><div><h2>Level check</h2>' +
+      '<p style="color:var(--ink-2);font-size:.92rem;margin-top:4px">A short paper your teacher sets, using questions that are not in the roadmap. It confirms the level you have reached.</p></div></div>';
+    if (!a) {
+      html += '<div class="card empty">No level check has been set for you yet. Your teacher will assign one when you have cleared a few legs.</div>';
+    } else if (a.done) {
+      html += '<div class="card" style="padding:var(--pad);display:flex;flex-direction:column;gap:10px">' +
+        '<span class="pill good">Submitted</span>' +
+        '<h3 style="font-size:1.25rem">You scored ' + pct(a.score) + '%</h3>' +
+        '<p style="color:var(--ink-2);font-size:.93rem">Set at level ' + a.level + ' · ' + a.itemIds.length + ' questions · ' +
+        esc(new Date(a.completedAt).toLocaleDateString()) + '</p>' +
+        '<p class="tiny">Your teacher can see the full breakdown.</p></div>';
+    } else {
+      html += '<div class="card" style="padding:var(--pad);display:flex;flex-direction:column;gap:12px">' +
+        '<span class="pill on">Ready to take</span>' +
+        '<h3 style="font-size:1.25rem">' + a.itemIds.length + ' questions, set at level ' + a.level + '</h3>' +
+        '<p style="color:var(--ink-2);font-size:.93rem">No hints on this one, and you only get one attempt. Take it when you have twenty quiet minutes.</p>' +
+        '<button class="btn primary wide" id="t-go">Start the level check</button></div>';
+    }
+    $('#view-test').innerHTML = html;
+    var g = $('#t-go');
+    if (g) g.addEventListener('click', function () {
+      var items = a.itemIds.map(E.Bank.item).filter(Boolean);
+      startRun('test', items, { title: 'Level check' });
+    });
+  }
+
+  /* =====================================================================
+     SETTINGS
+     ===================================================================== */
+  function paintSettings() {
+    var linked = api.mode === 'cloud';
+    $('#view-settings').innerHTML = '<div class="sect-h"><h2>Settings</h2></div>' +
+      '<div class="card settings">' +
+        '<div class="field"><label>Signed in as</label>' +
+        '<p style="font-weight:600">' + esc(S.p.displayName) + ' <span style="color:var(--ink-3);font-weight:400">(' + esc(S.p.studentId) + ')</span></p></div>' +
+        '<div class="field"><label>Reading level</label>' +
+        '<button class="btn sm" id="s-simple" style="align-self:flex-start">' +
+        (S.simple ? 'Theory is in simple English — switch back' : 'Use simpler English in the theory') + '</button></div>' +
+        '<div class="field"><label>Saving</label>' +
+        '<p style="font-size:.9rem;color:var(--ink-2)">' +
+        (linked && !api.pendingCount()
+          ? 'Everything you have answered has been sent to your teacher.'
+          : 'You have ' + api.pendingCount() + ' answer' + (api.pendingCount() === 1 ? '' : 's') +
+            ' waiting to be sent. They are saved on this device and go up on their own — you do not need to do anything.') +
+        '</p></div>' +
+        '<div class="field"><label>Account</label>' +
+        '<button class="btn sm" id="s-out" style="align-self:flex-start">Log out</button></div>' +
+      '</div>';
+    $('#s-simple').addEventListener('click', function () { S.simple = !S.simple; paintSettings(); });
+    $('#s-out').addEventListener('click', logout);
+  }
+
+  /* The ribbon is fixed, so the page needs to start below it — and it can
+     wrap to two lines on a narrow phone, so measure rather than assume. */
+  function sizeRibbon() {
+    var r = document.querySelector('.ribbon');
+    if (r) document.documentElement.style.setProperty('--ribbon-h', r.offsetHeight + 'px');
+  }
+  sizeRibbon();
+  window.addEventListener('resize', sizeRibbon);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeRibbon);
+
+  setMode('in');
+})();
