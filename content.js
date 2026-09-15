@@ -323,20 +323,27 @@ const REMEDIATION = {
 
 const STAGES = [];
 
-/* Each leg can carry its own media. Fill these three fields on any leg and the
-   buttons appear under that leg's header; leave them empty and the strip stays
-   hidden, so you can add episodes one at a time.
-     podcast: 'audio/leg-1.mp3'          a file next to index.html, or any URL
-     slides:  'slides/leg-1.pdf'         opens in a new tab
-     video:   'https://youtu.be/XXXX'    opens in a player inside the app
-   The teacher console reports who opened what, per leg. */
+/* Each leg can carry its own media.
+
+   PODCAST — already wired up. Every leg points at audio/leg-N.mp3, so create a
+   folder called `audio` next to index.html in the repo and drop in:
+     audio/leg-1.mp3 … audio/leg-8.mp3
+   A leg whose file is not there yet still shows its Podcast button, so upload
+   them before you give students the link, or blank that leg's field until the
+   episode is ready. The player resumes where a student stopped, and the teacher
+   console reports plays, minutes listened and who finished.
+
+   SLIDES and VIDEO — still empty. Fill either one on any leg and its button
+   appears; leave them empty and no button is drawn.
+     slides: 'slides/leg-1.pdf'          opens in a new tab
+     video:  'https://youtu.be/XXXX'     opens in a player inside the app */
 
 /* ===== LEG 1 — THE DEPARTURE BOARD ====================================
    First principles. How many tenses English really has, and what the two
    present forms are each for.
    ====================================================================== */
 STAGES.push({
-  id: 's1', podcast: '', slides: '', video: '', art: 'timetable', n: 1,
+  id: 's1', podcast: 'audio/leg-1.mp3', slides: '', video: '', art: 'timetable', n: 1,
   name: 'Two Tenses, Not Twelve', cefr: 'A2–B1', gate: 'Leg 1',
   blurb: 'Before any holiday story or any plan: find out how many tenses English actually has, and why the present simple almost never means "now".',
   lessons: [
@@ -573,7 +580,7 @@ STAGES.push({
    Past simple and past progressive: the event and the scene it lands in.
    ====================================================================== */
 STAGES.push({
-  id: 's2', podcast: '', slides: '', video: '', art: 'suitcase', n: 2,
+  id: 's2', podcast: 'audio/leg-2.mp3', slides: '', video: '', art: 'suitcase', n: 2,
   name: 'The Holiday Story', cefr: 'A2–B1', gate: 'Leg 2',
   blurb: 'Last year\'s trip. The past simple carries the events; the past progressive builds the scene they happen inside.',
   lessons: [
@@ -832,7 +839,7 @@ STAGES.push({
    The present perfect: a present tense that uses a past event.
    ====================================================================== */
 STAGES.push({
-  id: 's3', podcast: '', slides: '', video: '', art: 'tags', n: 3,
+  id: 's3', podcast: 'audio/leg-3.mp3', slides: '', video: '', art: 'tags', n: 3,
   name: 'What the Trip Left Behind', cefr: 'B1', gate: 'Leg 3',
   blurb: 'The hardest tense in English, because it is not a past tense at all. Old luggage tags still on the handle: past events, present meaning.',
   lessons: [
@@ -1101,7 +1108,7 @@ STAGES.push({
    Past perfect, past perfect progressive, and the past-habit toolkit.
    ====================================================================== */
 STAGES.push({
-  id: 's4', podcast: '', slides: '', video: '', art: 'nightflight', n: 4,
+  id: 's4', podcast: 'audio/leg-4.mp3', slides: '', video: '', art: 'nightflight', n: 4,
   name: 'The Night Before', cefr: 'B1+–B2', gate: 'Leg 4',
   blurb: 'How to step backwards inside a story without losing your reader — and how English talks about the holidays you used to take.',
   lessons: [
@@ -1365,7 +1372,7 @@ STAGES.push({
    arrangement, intention. All three are grounded in the present.
    ====================================================================== */
 STAGES.push({
-  id: 's5', podcast: '', slides: '', video: '', art: 'desk', n: 5,
+  id: 's5', podcast: 'audio/leg-5.mp3', slides: '', video: '', art: 'desk', n: 5,
   name: 'Planning the Next Trip', cefr: 'B1+–B2', gate: 'Leg 5',
   blurb: 'English has no future tense — so it uses present forms instead. The question is never "is this future?" but "what is already true now?"',
   lessons: [
@@ -1659,7 +1666,7 @@ STAGES.push({
    the clause where English forbids will altogether.
    ====================================================================== */
 STAGES.push({
-  id: 's6', podcast: '', slides: '', video: '', art: 'board', n: 6,
+  id: 's6', podcast: 'audio/leg-6.mp3', slides: '', video: '', art: 'board', n: 6,
   name: 'What "will" Really Means', cefr: 'B2', gate: 'Leg 6',
   blurb: 'Everyone learns will on day one and nobody is told what it means. It is a modal of judgement — and there is one clause where English bans it outright.',
   lessons: [
@@ -1949,7 +1956,7 @@ STAGES.push({
    future perfect, and the semi-modal arrangement ladder.
    ====================================================================== */
 STAGES.push({
-  id: 's7', podcast: '', slides: '', video: '', art: 'lounge', n: 7,
+  id: 's7', podcast: 'audio/leg-7.mp3', slides: '', video: '', art: 'lounge', n: 7,
   name: 'Standing in Next August', cefr: 'B2+', gate: 'Leg 7',
   blurb: 'Put yourself at a point in the future and look around — or look back. This is also where English keeps its politest way of asking for anything.',
   lessons: [
@@ -2225,7 +2232,7 @@ STAGES.push({
    and tense management across a whole piece of writing.
    ====================================================================== */
 STAGES.push({
-  id: 's8', podcast: '', slides: '', video: '', art: 'arrivals', n: 8,
+  id: 's8', podcast: 'audio/leg-8.mp3', slides: '', video: '', art: 'arrivals', n: 8,
   name: 'The Traveller\'s Toolkit', cefr: 'C1', gate: 'Leg 8',
   blurb: 'Why English uses the past tense for things that are not past at all — and how a C1 writer manages tense across a whole text.',
   lessons: [
