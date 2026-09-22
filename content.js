@@ -158,7 +158,7 @@ const REMEDIATION = {
   },
   'since-for': {
     name: 'since and for, and the two present perfects',
-    principle: 'The simple present perfect reports a result; the progressive reports the activity that produced it. Both reach up to now, but they point at different things.',
+    principle: 'Two separate things live in this area. One is which little word marks a starting point and which marks a length. The other is whether you are pointing at a finished result or at the activity that produced it. Decide which of the two the sentence is asking about.',
     reteach: 'Since marks the starting point, for marks the length: since Tuesday, for three days. Then the aspect choice: "I have unpacked" — the case is empty, look at the result. "I have been unpacking" — that is why the room is a mess, look at the activity. With state verbs the simple carries the duration anyway: I have known her for years.',
     activities: [
       'Result or reason: students see a photo of a chaotic hotel room and write three have-been sentences that explain it, then three have sentences that report what is now done.',
@@ -178,7 +178,7 @@ const REMEDIATION = {
   },
   'used-to-would': {
     name: 'used to, would, and the past habit toolkit',
-    principle: 'Both describe repeated past behaviour, but would refuses states. Used to covers everything; would covers only actions, and needs a past time frame already established.',
+    principle: 'Two forms describe repeated past behaviour, but they are not interchangeable: one of them will not accept every kind of verb, and one of them cannot open a paragraph on its own. Ask what kind of verb you have, and whether the past frame is already set.',
     reteach: '"We used to have a caravan" is fine; "we would have a caravan" is not, because having is a state. Would is the storyteller\'s form — it needs the scene set first ("Every August we went to Hua Hin. We would leave before dawn...") — which is exactly why it sounds nostalgic and used to sounds neutral.',
     activities: [
       'State or action sort, then students try each verb in both frames and hear which one breaks.',
@@ -245,7 +245,7 @@ const REMEDIATION = {
   },
   'time-clause': {
     name: 'No will in a future time clause',
-    principle: 'After when, if, as soon as, before, after, until, once and by the time, English uses a present form even though the time is future. The subordinate clause supplies the reference point, and reference points are treated as given rather than predicted.',
+    principle: 'A future sentence can have two clauses, and only one of them is doing the predicting. The other is just fixing the point in time — and English does not mark that one for the future at all. Work out which clause is which before you touch the verbs.',
     reteach: 'Only the main clause gets will: "When we LAND, I will call you." Then the exception students must see — if when introduces a noun clause rather than a time clause, will comes back: "I do not know when we WILL land." Test: if you can replace it with "at the time that", it is a time clause and will is banned.',
     activities: [
       'Two whens on the board and students sort ten sentences by which one they contain, before touching the verb at all.',
@@ -294,7 +294,7 @@ const REMEDIATION = {
   },
   backshift: {
     name: 'Backshift and the future in the past',
-    principle: 'Reporting inside a past frame pushes every tense one step back, and the future forms shift with them: will becomes would, be going to becomes was going to, the present progressive becomes the past progressive.',
+    principle: 'When the reporting verb is in the past, everything inside the report is pulled back with it — predictions included. Check whether both halves of the sentence are standing in the same time, or whether one of them has slipped into the present.',
     reteach: 'Backshift is a default, not a law: if the statement is still true you may keep the original tense ("she said the ferry leaves at seven"). Then the three futures-in-the-past, which students almost never produce. would = the prediction as it was then. was going to = the intention, and it usually failed ("we were going to fly, but..."). was to = destiny, the voice of hindsight: "he was to miss the last train."',
     activities: [
       'Three endings: give "we were going to take the night train" and require three continuations, all of which explain why it did not happen.',
@@ -312,7 +312,7 @@ const REMEDIATION = {
   },
   'register-hedge': {
     name: 'Hedged prediction and tense in formal writing',
-    principle: 'Academic and professional English rarely uses bare will for prediction. It grades confidence with semi-modals and adverbs, and it uses tense to separate reported findings from standing facts.',
+    principle: 'Formal writing does not state predictions flat — it signals how confident it is, and there is a whole ladder of ways to do that. It also uses tense to keep what researchers did apart from what a text argues. Ask how much this sentence is claiming, and whether it is entitled to.',
     reteach: 'The ladder: is set to / is expected to / is likely to / may well / could conceivably. Note that is set to is near-certain and is likely to is a hedge — students often treat them as synonyms. And in writing about sources: the present for what a text says now ("the report argues"), the past for what researchers did ("they surveyed 400 travellers").',
     activities: [
       'Confidence ranking: eight predictions about tourism, sorted from near-certain to speculative, with the language that marks each.',
@@ -378,11 +378,12 @@ STAGES.push({
           answer: 1,
           why: 'Only <em>fly → flew</em> changes the verb itself. The other three add a helper word in front of it.' },
 
-        { id: 's1l1-02', type: 'spot', tag: 'two-tenses', level: 'A2',
-          stem: 'One word here is the helper that carries the tense. Click it.',
-          words: ['We', 'had', 'been', 'waiting', 'at', 'the', 'airport', 'for', 'hours.'],
-          answer: 1, fix: 'had — the only past-marked word in the phrase',
-          why: 'Everything after <em>had</em> is fixed in shape. The first helper is where English puts its one tense contrast — <em>had</em> is the past of <em>have</em>.' },
+        { id: 's1l1-02', type: 'choose', tag: 'two-tenses', level: 'A2',
+          given: 'We had been waiting at the airport for hours.',
+          stem: 'Which word in that phrase is the one marked for tense?',
+          options: ['had', 'been', 'waiting', 'all three of them'],
+          answer: 0,
+          why: 'Only the first helper is marked. <em>Had</em> is the past of <em>have</em>; <em>been</em> and <em>waiting</em> never change their shape, whatever the tense of the sentence.' },
 
         { id: 's1l1-03', type: 'judge', tag: 'two-tenses', level: 'B1',
           given: 'English has a future tense, in the same way it has a past tense.',
@@ -391,17 +392,17 @@ STAGES.push({
           why: 'False. A tense is marked on the verb, and no English verb has a future form. <em>Will</em> is a separate word — a modal, like <em>can</em> or <em>must</em>.' },
 
         { id: 's1l1-04', type: 'sort', tag: 'two-tenses', level: 'B1',
-          stem: 'Each phrase starts with a helper. Is that first helper past or non-past?',
+          stem: 'Sort each phrase by the <strong>shape of its first word</strong> — not by when the phrase happens. One of the six is a trap.',
           bins: [
-            { key: 'past', label: 'Starts past', hint: 'had, was, were, would' },
-            { key: 'now', label: 'Starts non-past', hint: 'have, is, are, will' }
+            { key: 'past', label: 'First word is a past form', hint: 'the past shape of that helper' },
+            { key: 'now', label: 'First word is not a past form', hint: 'the plain shape' }
           ],
           items: [
             { text: 'had booked', bin: 'past' }, { text: 'was packing', bin: 'past' },
             { text: 'would arrive', bin: 'past' }, { text: 'have booked', bin: 'now' },
             { text: 'is packing', bin: 'now' }, { text: 'will arrive', bin: 'now' }
           ],
-          why: 'Even <em>would</em> and <em>will</em> are a past/non-past pair — <em>would</em> is historically the past of <em>will</em>. Every verb phrase in English begins in one column or the other.' },
+          why: '<em>Would arrive</em> is the trap. It points at future time, but <em>would</em> is the past <strong>shape</strong> of <em>will</em> — which is why <em>he said he would arrive</em> is the past version of <em>he will arrive</em>. Sort by shape and every verb phrase in English lands in one column or the other.' },
 
         { id: 's1l1-05', type: 'choose', tag: 'two-tenses', level: 'B1',
           stem: 'What does the <em>-ing</em> in <em>we are staying</em> actually tell you?',
@@ -969,7 +970,7 @@ STAGES.push({
         { id: 's3l2-03', type: 'gap', tag: 'perfect-adverbials', level: 'B1',
           lines: [
             { who: 'Nan', text: 'Have the bags come round yet?' },
-            { who: 'Ton', text: 'No, and we ___ been standing here for forty minutes.' }
+            { who: 'Ton', text: 'No, and we have ___ been standing here for forty minutes.' }
           ],
           options: ['yet', 'still', 'already', 'just'],
           answer: 1,
@@ -1451,7 +1452,7 @@ STAGES.push({
           why: 'The present simple treats a schedule as a present fact about the world. It is the most impersonal of all the futures — nobody\'s choice, nobody\'s prediction.' },
 
         { id: 's5l1-05', type: 'spot', tag: 'timetable-future', level: 'B2',
-          stem: 'Click the word that cannot use a timetable form.',
+          stem: 'One of these two verbs is wrong, because no timetable governs it. Click it.',
           words: ['The', 'flight', 'departs', 'at', 'nine', 'and', 'my', 'aunt', 'cooks', 'us', 'dinner', 'tomorrow.'],
           answer: 8, fix: 'is cooking',
           why: 'Airlines publish timetables; aunts do not. A personal arrangement needs the present progressive, however fixed it feels.' },
@@ -1498,7 +1499,7 @@ STAGES.push({
             { who: 'Ice', text: 'Are you free on Saturday?' },
             { who: 'Praew', text: 'Sorry, I ___ my cousin at the airport — her flight lands at eight.' }
           ],
-          options: ['will meet', 'meet', 'am meeting', 'meet with'],
+          options: ['will meet', 'meet', 'am meeting', 'have met'],
           answer: 2,
           why: 'It is arranged: the cousin knows, and the flight time is fixed. The progressive is how English declines an invitation without sounding like it is inventing an excuse.' },
 
@@ -1535,9 +1536,9 @@ STAGES.push({
 
         { id: 's5l2-04', type: 'spot', tag: 'arrangement-future', level: 'B2',
           stem: 'Click the wrong word.',
-          words: ['We', 'are', 'being', 'at', 'the', 'hotel', 'by', 'four', 'on', 'Sunday.'],
-          answer: 2, fix: 'will be',
-          why: 'You can arrange an activity, but <em>be</em> here describes a state. States do not take the arrangement progressive — use <em>will be</em> or <em>we are getting there by four</em>.' },
+          words: ['I', 'meet', 'my', 'cousin', 'at', 'the', 'airport', 'on', 'Saturday.'],
+          answer: 1, fix: 'am meeting',
+          why: 'Cousins do not publish timetables. A present simple here would claim this is a scheduled fact about the world; it is a personal arrangement, so it needs the progressive.' },
 
         { id: 's5l2-05', type: 'equiv', tag: 'arrangement-future', level: 'B2',
           given: 'What are you doing at the weekend?',
@@ -1891,12 +1892,12 @@ STAGES.push({
           stem: 'Which sentence is correct?',
           options: [
             'I do not know when the coach will arrive.',
-            'I do not know when the coach arrives, so I will not know when will it arrive.',
             'When the coach will arrive, we will board it.',
-            'I will tell you when will the coach arrive.'
+            'I will tell you when will the coach arrive.',
+            'We will board the coach when it will arrive.'
           ],
           answer: 0,
-          why: 'Here <em>when</em> means "what time" — a noun clause, so <em>will</em> is correct and the word order stays statement order.' },
+          why: 'Here <em>when</em> means "what time" — a noun clause, so <em>will</em> belongs. The other three all put <em>will</em> in a clause that is only setting the time, and the third one also inverts the word order, which a noun clause never does.' },
 
         { id: 's6l3-03', type: 'sort', tag: 'time-clause', level: 'B2+',
           stem: 'Is <em>when</em> a time clause (no will) or a noun clause (will is fine)?',
@@ -2034,9 +2035,9 @@ STAGES.push({
 
         { id: 's7l1-06', type: 'judge', tag: 'future-prog', level: 'B2+',
           given: 'Do not call them at eight — they will be eating.',
-          stem: 'Is the speaker certain about this?',
+          stem: 'Is the speaker guessing from what usually happens at that time?',
           answer: 0,
-          why: 'True, reasonably so. This is the assumption use: at that point in their routine, this is what will be going on. It is a confident inference rather than a prediction of an event.' }
+          why: 'Yes. This is the assumption use: nothing has been arranged and nothing is being predicted — the speaker simply knows the household routine and is describing what will be in progress at eight.' }
       ]
     },
 
@@ -2178,9 +2179,9 @@ STAGES.push({
             { who: 'Newsreader', text: 'In travel news: the Transport Minister ___ open the new terminal next Tuesday.' },
             { who: 'Reporter', text: 'Yes, and flights begin the following week.' }
           ],
-          options: ['is about to', 'is due', 'is to', 'will be'],
+          options: ['is about to', 'is going to', 'is to', 'has to'],
           answer: 2,
-          why: '<em>Be to</em> is the register of news and official arrangement. In a headline it would be compressed further: <em>Minister to open new terminal</em>.' },
+          why: 'All four are real English; only one fits. <em>Is about to</em> means the next moment, which clashes with <em>next Tuesday</em>. <em>Is going to</em> is too informal for a bulletin. <em>Has to</em> would report an obligation, not an arrangement. <em>Be to</em> is the register of official news — and a headline would compress it further still: <em>Minister to open new terminal</em>.' },
 
         { id: 's7l3-03', type: 'sort', tag: 'be-to-about', level: 'C1',
           stem: 'Which semi-modal does each situation call for?',
@@ -2200,7 +2201,7 @@ STAGES.push({
           why: 'Three registers, three jobs. Choosing between them is one of the clearest signals of a C1 writer.' },
 
         { id: 's7l3-04', type: 'spot', tag: 'be-to-about', level: 'C1',
-          stem: 'Click the phrase that overstates the case.',
+          stem: 'Click the word that overstates the case.',
           words: ['Heavy', 'rain', 'is', 'set', 'to', 'affect', 'the', 'islands,', 'forecasters', 'suggest.'],
           answer: 3, fix: 'likely to',
           why: '<em>Set to</em> is near-certain, but <em>forecasters suggest</em> is a hedge. The two halves of the sentence disagree about how confident the writer is.' },
@@ -2560,11 +2561,12 @@ const CHALLENGES = {
         { text: 'own', bin: 'no' }, { text: 'seem', bin: 'no' }, { text: 'prefer', bin: 'no' }
       ],
       why: 'Activities have an inside to stand in. States simply hold, so there is nothing to be in the middle of.' },
-    { id: 's1ch-6', type: 'spot', tag: 'two-tenses', level: 'B1',
-      stem: 'Click the word that carries the tense in this phrase.',
-      words: ['They', 'have', 'been', 'waiting', 'since', 'six.'],
-      answer: 1, fix: 'have — the first auxiliary always carries it',
-      why: 'The first auxiliary is the only word marked for past or non-past. Everything after it is fixed in form.' },
+    { id: 's1ch-6', type: 'choose', tag: 'two-tenses', level: 'B1',
+      given: 'They have been waiting since six.',
+      stem: 'Change that phrase to the past. Which single word changes?',
+      options: ['have → had', 'been → was', 'waiting → waited', 'every word changes'],
+      answer: 0,
+      why: '<em>They had been waiting since six.</em> Only the first helper moves. That is the clearest proof that English marks tense once, at the front of the verb phrase.' },
     { id: 's1ch-7', type: 'choose', tag: 'progressive-core', level: 'B1+',
       stem: 'What does "He is always losing his boarding pass" tell you about the speaker?',
       options: ['That she is impressed.', 'That she is irritated.', 'That it happened once.', 'That it is happening now.'],
@@ -2582,9 +2584,9 @@ const CHALLENGES = {
       words: ['Did', 'you', 'saw', 'the', 'temple', 'at', 'sunrise?'],
       answer: 2, fix: 'see', why: '<em>Did</em> carries the past, so the main verb returns to its base form.' },
     { id: 's2ch-2', type: 'gap', tag: 'past-prog-frame', level: 'B1',
-      lines: [{ who: 'Pim', text: 'How did you miss the announcement?' }, { who: 'Kan', text: 'We ___ in the shop when they called the gate.' }],
+      lines: [{ who: 'Pim', text: 'How did you miss the announcement?' }, { who: 'Kan', text: 'We ___ looking at postcards when they called the gate.' }],
       options: ['were', 'was', 'have been', 'are'], answer: 0,
-      why: 'The background was already running when the short event landed in it.' },
+      why: 'The looking was already running when the short event landed in it — and the subject is <em>we</em>, so the auxiliary is <em>were</em>, not <em>was</em>.' },
     { id: 's2ch-3', type: 'equiv', tag: 'narrative-order', level: 'B1+',
       given: 'When the rain started, we were walking back to the hotel.',
       stem: 'Which started first?',
@@ -2632,7 +2634,7 @@ const CHALLENGES = {
 
   s3: { id: 's3ch', name: 'Checkpoint 3', items: [
     { id: 's3ch-1', type: 'spot', tag: 'perfect-adverbials', level: 'B1',
-      stem: 'Click the words that cannot stay.',
+      stem: 'Click the one word that cannot stay in this sentence.',
       words: ['We', 'have', 'visited', 'Kyoto', 'in', '2019.'],
       answer: 4, fix: 'delete "in 2019", or use "we visited"',
       why: 'A closed date and a present perfect cannot share a sentence.' },
@@ -2745,7 +2747,7 @@ const CHALLENGES = {
       options: ['will meet', 'meet', 'am meeting', 'would meet'], answer: 2,
       why: 'Arranged, and another person knows about it. That is the condition the progressive reports.' },
     { id: 's5ch-3', type: 'spot', tag: 'timetable-future', level: 'B2',
-      stem: 'Click the word that cannot take a timetable form.',
+      stem: 'One of these two verbs is wrong, because no timetable governs it. Click it.',
       words: ['The', 'train', 'leaves', 'at', 'six', 'and', 'my', 'uncle', 'collects', 'us', 'tomorrow.'],
       answer: 8, fix: 'is collecting',
       why: 'Railways publish timetables; uncles do not. A personal arrangement needs the progressive.' },
@@ -3019,7 +3021,7 @@ const VERIFY = {
 
   3: [
     { id: 'v3-1', type: 'spot', tag: 'perfect-adverbials', level: 'B1',
-      stem: 'Click the words that cannot stay.',
+      stem: 'Click the one word that cannot stay in this sentence.',
       words: ['I', 'have', 'been', 'to', 'Laos', 'last', 'year.'],
       answer: 5, fix: 'delete "last year", or use "I went"',
       why: 'A closed past time cannot sit in a present perfect.' },
@@ -3105,7 +3107,7 @@ const VERIFY = {
 
   5: [
     { id: 'v5-1', type: 'spot', tag: 'timetable-future', level: 'B2',
-      stem: 'Click the word that cannot take a timetable form.',
+      stem: 'One of these two verbs is wrong, because no timetable governs it. Click it.',
       words: ['The', 'boat', 'sails', 'at', 'seven', 'and', 'my', 'sister', 'drives', 'us', 'there.'],
       answer: 8, fix: 'is driving', why: 'Ferries publish timetables; sisters do not.' },
     { id: 'v5-2', type: 'gap', tag: 'arrangement-future', level: 'B1+',

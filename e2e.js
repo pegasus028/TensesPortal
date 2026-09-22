@@ -6,12 +6,21 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
+
+/* The test server blanks window.PP_API_URL on the way out, so the app starts in
+   local mode and this suite can NEVER write a test account into the real class
+   sheet. Do not remove: an earlier version of this file did exactly that. */
 const server = http.createServer((req, res) => {
   const f = path.join(__dirname, decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, '') || 'index.html');
   fs.readFile(f, (e, d) => {
     if (e) { res.writeHead(404); return res.end('no'); }
+    let body = d;
+    if (path.extname(f) === '.html') {
+      body = d.toString().replace(/window\.PP_API_URL\s*=\s*'[^']*'/g, "window.PP_API_URL = ''");
+      if (/PP_API_URL\s*=\s*'[^']/.test(body)) { console.error('FATAL: could not blank the API URL — refusing to run'); process.exit(1); }
+    }
     res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'text/plain' });
-    res.end(d);
+    res.end(body);
   });
 });
 
