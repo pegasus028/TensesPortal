@@ -348,232 +348,230 @@ STAGES.push({
   blurb: 'Before any holiday story or any plan: find out how many tenses English actually has, and why the present simple almost never means "now".',
   lessons: [
 
-    {
-      id: 's1l1', name: 'How many tenses does English have?', cefr: 'A2',
-      theory: {
-        key: 'The English verb changes for one thing only: past or not past.',
-        body: [
-          'Look at what the verb itself can do. <em>I travel</em> → <em>I travelled</em>. <em>I go</em> → <em>I went</em>. <em>It is</em> → <em>it was</em>. One change, one contrast: <strong>past</strong> or <strong>non-past</strong>.',
-          'Now try to make a future ending. There is none. No letters you can add to <em>travel</em> to mean "later". English has no future tense at all — it has ways of <em>talking</em> about the future, and you will spend three whole legs of this course learning to choose between them.',
-          'So where do the "twelve tenses" come from? They are the two real tenses combined with two <strong>aspects</strong>. Aspect is not about when something happens; it is about how you look at it. <em>Have + -ed</em> looks back from a point. <em>Be + -ing</em> stands inside something unfinished.',
-          'Two tenses × two aspects gives you eight combinations for real time, and the auxiliary <em>will</em> gives you four more for future time. That is the twelve. Nothing else is hiding.',
-          'This matters for a practical reason. If you think English has twelve tenses, you spend your time hunting for the right box. If you know it has two tenses and two aspects, you only ever ask three questions: <strong>past or not? looking back or not? standing inside it or not?</strong>'
-        ],
-        simple: [
-          'English verbs change for only one thing: <strong>past</strong> or <strong>not past</strong>. Go → went. Is → was.',
-          'There is <strong>no future ending</strong> in English. You cannot add letters to a verb to mean "later".',
-          'The other "tenses" are made with helper words: <em>have</em> (looking back) and <em>be + -ing</em> (inside the action).',
-          'Ask three questions, not twelve: past? looking back? inside it?'
-        ],
-        examples: [
-          { s: 'We <strong>pack</strong> → we <strong>packed</strong>', g: 'THE ONLY CHANGE THE VERB ITSELF MAKES' },
-          { s: 'We <strong>will</strong> pack · we <strong>are</strong> packing · we <strong>have</strong> packed', g: 'HELPER WORDS DO EVERYTHING ELSE' },
-          { s: '<s>We packwill the case.</s>', g: 'NO FUTURE ENDING EXISTS — THAT IS THE POINT' }
-        ]
-      },
+   {
+  id: 's1l1', name: 'How many tenses does English have?', cefr: 'A2',
+  theory: {
+    key: 'The English verb changes for one thing only: past or not past.',
+    body: [
+      'Look at what the verb itself can do. <em>I travel</em> → <em>I travelled</em>. <em>I go</em> → <em>I went</em>. <em>It is</em> → <em>it was</em>. One change, one contrast: <strong>past</strong> or <strong>non-past</strong>.',
+      'Now try to make a future ending. There is none. No letters you can add to <em>travel</em> to mean "later". English has no future tense at all — it has ways of <em>talking</em> about the future, and you will spend three whole legs of this course learning to choose between them.',
+      'So where do the "twelve tenses" come from? They are the two real tenses combined with two <strong>aspects</strong>. Aspect is not about when something happens; it is about how you look at it. <em>Have + -ed</em> looks back from a point. <em>Be + -ing</em> stands inside something unfinished.',
+      'Two tenses × two aspects gives you eight combinations for real time, and the auxiliary <em>will</em> gives you four more for future time. That is the twelve. Nothing else is hiding.',
+      'This matters for a practical reason. If you think English has twelve tenses, you spend your time hunting for the right box. If you know it has two tenses and two aspects, you only ever ask three questions: <strong>past or not? looking back or not? standing inside it or not?</strong>'
+    ],
+    simple: [
+      'English verbs change for only one thing: <strong>past</strong> or <strong>not past</strong>. Go → went. Is → was.',
+      'There is <strong>no future ending</strong> in English. You cannot add letters to a verb to mean "later".',
+      'The other "tenses" are made with helper words: <em>have</em> (looking back) and <em>be + -ing</em> (inside the action).',
+      'Ask three questions, not twelve: past? looking back? inside it?'
+    ],
+    examples: [
+      { s: 'We <strong>pack</strong> → we <strong>packed</strong>', g: 'THE ONLY CHANGE THE VERB ITSELF MAKES' },
+      { s: 'We <strong>will</strong> pack · we <strong>are</strong> packing · we <strong>have</strong> packed', g: 'HELPER WORDS DO EVERYTHING ELSE' },
+      { s: '<s>We packwill the case.</s>', g: 'NO FUTURE ENDING EXISTS — THAT IS THE POINT' }
+    ]
+  },
+  items: [
+    { id: 's1l1-01', type: 'choose', tag: 'two-tenses', level: 'A2',
+      stem: 'Which pair shows the only change an English verb makes on its own?',
+      options: ['fly / will fly', 'fly / flew', 'fly / am flying', 'fly / have flown'],
+      answer: 1,
+      why: 'Only <em>fly → flew</em> changes the verb itself. The other three add a helper word in front of it.' },
+
+    { id: 's1l1-02', type: 'choose', tag: 'two-tenses', level: 'A2',
+      given: 'We had been waiting at the airport for hours.',
+      stem: 'Which word in that phrase is the one marked for tense?',
+      options: ['had', 'been', 'waiting', 'all three of them'],
+      answer: 0,
+      why: 'Only the first helper is marked. <em>Had</em> is the past of <em>have</em>; <em>been</em> and <em>waiting</em> never change their shape, whatever the tense of the sentence.' },
+
+    { id: 's1l1-03', type: 'judge', tag: 'two-tenses', level: 'B1',
+      given: 'English has a future tense, in the same way it has a past tense.',
+      stem: 'True, false, or impossible to say?',
+      answer: 1,
+      why: 'False. A tense is marked on the verb, and no English verb has a future form. <em>Will</em> is a separate word — a modal, like <em>can</em> or <em>must</em>.' },
+
+    { id: 's1l1-04', type: 'sort', tag: 'two-tenses', level: 'B1',
+      stem: 'Sort each phrase by the <strong>shape of its first word</strong> — not by when the phrase happens. One of the six is a trap.',
+      bins: [
+        { key: 'past', label: 'First word is a past form', hint: 'the past shape of that helper' },
+        { key: 'now', label: 'First word is not a past form', hint: 'the plain shape' }
+      ],
       items: [
-        { id: 's1l1-01', type: 'choose', tag: 'two-tenses', level: 'A2',
-          stem: 'Which pair shows the only change an English verb makes on its own?',
-          options: ['fly / will fly', 'fly / flew', 'fly / am flying', 'fly / have flown'],
-          answer: 1,
-          why: 'Only <em>fly → flew</em> changes the verb itself. The other three add a helper word in front of it.' },
+        { text: 'had booked', bin: 'past' }, { text: 'was packing', bin: 'past' },
+        { text: 'would arrive', bin: 'past' }, { text: 'have booked', bin: 'now' },
+        { text: 'is packing', bin: 'now' }, { text: 'will arrive', bin: 'now' }
+      ],
+      why: '<em>Would arrive</em> is the trap. It points at future time, but <em>would</em> is the past <strong>shape</strong> of <em>will</em> — which is why <em>he said he would arrive</em> is the past version of <em>he will arrive</em>. Sort by shape and every verb phrase in English lands in one column or the other.' },
 
-        { id: 's1l1-02', type: 'choose', tag: 'two-tenses', level: 'A2',
-          given: 'We had been waiting at the airport for hours.',
-          stem: 'Which word in that phrase is the one marked for tense?',
-          options: ['had', 'been', 'waiting', 'all three of them'],
-          answer: 0,
-          why: 'Only the first helper is marked. <em>Had</em> is the past of <em>have</em>; <em>been</em> and <em>waiting</em> never change their shape, whatever the tense of the sentence.' },
+    { id: 's1l1-05', type: 'choose', tag: 'two-tenses', level: 'B1',
+      stem: 'What does the <em>-ing</em> in <em>we are staying</em> actually tell you?',
+      options: ['That it is happening in the present', 'That the situation is unfinished and we are inside it', 'That it is temporary and nothing else', 'That it is definitely happening now, not later'],
+      answer: 1,
+      why: 'The <em>-ing</em> is aspect, not time. It says the situation is viewed from inside and is not complete — which is why <em>we are staying in Krabi next week</em> is perfectly good English about the future.' },
 
-        { id: 's1l1-03', type: 'judge', tag: 'two-tenses', level: 'B1',
-          given: 'English has a future tense, in the same way it has a past tense.',
-          stem: 'True, false, or impossible to say?',
-          answer: 1,
-          why: 'False. A tense is marked on the verb, and no English verb has a future form. <em>Will</em> is a separate word — a modal, like <em>can</em> or <em>must</em>.' },
+    { id: 's1l1-06', type: 'build', tag: 'two-tenses', level: 'B1',
+      stem: 'Say that the passports are in your bag right now, using the looking-back aspect.',
+      tiles: ['I', 'have', 'already', 'packed', 'the', 'passports.'],
+      solution: 'I have already packed the passports.',
+      why: '<em>Have</em> + past participle looks back at an earlier event from where you stand now. The tense is non-past; the aspect does the looking back.' }
+  ]
+},
 
-        { id: 's1l1-04', type: 'sort', tag: 'two-tenses', level: 'B1',
-          stem: 'Sort each phrase by the <strong>shape of its first word</strong> — not by when the phrase happens. One of the six is a trap.',
-          bins: [
-            { key: 'past', label: 'First word is a past form', hint: 'the past shape of that helper' },
-            { key: 'now', label: 'First word is not a past form', hint: 'the plain shape' }
-          ],
-          items: [
-            { text: 'had booked', bin: 'past' }, { text: 'was packing', bin: 'past' },
-            { text: 'would arrive', bin: 'past' }, { text: 'have booked', bin: 'now' },
-            { text: 'is packing', bin: 'now' }, { text: 'will arrive', bin: 'now' }
-          ],
-          why: '<em>Would arrive</em> is the trap. It points at future time, but <em>would</em> is the past <strong>shape</strong> of <em>will</em> — which is why <em>he said he would arrive</em> is the past version of <em>he will arrive</em>. Sort by shape and every verb phrase in English lands in one column or the other.' },
+{
+  id: 's1l2', name: 'Why the present simple is not about now', cefr: 'A2',
+  theory: {
+    key: 'A whole event will not fit inside this instant — so the present simple means habit, fact or timetable.',
+    body: [
+      'Stand up and walk across the room. Ask someone to describe it. Nobody says <em>you walk</em>. Everybody says <em>you are walking</em>. That is not a rule anyone taught you — it is the grammar refusing an impossible reading.',
+      'Here is why. The present simple views an event as a <strong>complete whole</strong>. But a complete event cannot fit inside the moment of speaking: by the time you have finished saying <em>I open my suitcase</em>, the opening is already over. So English quietly pushes the present simple onto the three meanings where completeness makes sense.',
+      '<strong>Habit</strong> — a whole event, repeated: <em>We go to Hua Hin every April.</em> <strong>Permanent fact</strong> — something simply true: <em>The beach faces west.</em> <strong>Timetable</strong> — a schedule, which is a present fact about the world even though the event is in the future: <em>The ferry leaves at 07:15.</em>',
+      'There are three small places where the present simple really is about this instant, and they are worth knowing because they are the exceptions that prove the rule: live commentary (<em>he passes to Bunmee, he shoots</em>), demonstrations (<em>now I add the chilli</em>), and performatives, where saying the words IS the action (<em>I promise</em>, <em>I apologise</em>).',
+      'One more use that surprises learners: the <strong>historic present</strong>. <em>So we get to the hotel, and there is no booking.</em> That is a past story told in present forms, to make it feel live. Thai, English and most languages do this.'
+    ],
+    simple: [
+      'The present simple is <strong>not</strong> for things happening right now.',
+      'Use it for: <strong>habits</strong> (we go every year), <strong>facts</strong> (the beach faces west), <strong>timetables</strong> (the ferry leaves at 07:15).',
+      'For right now, use <em>am / is / are + -ing</em>: <em>I am packing</em>.',
+      'Small exceptions: sports commentary, cooking demonstrations, and <em>I promise</em> / <em>I apologise</em>.'
+    ],
+    examples: [
+      { s: 'We <strong>go</strong> to Phuket every March.', g: 'HABIT — A WHOLE EVENT, REPEATED' },
+      { s: 'The last bus <strong>leaves</strong> at 22:40.', g: 'TIMETABLE — A PRESENT FACT ABOUT A FUTURE EVENT' },
+      { s: '<s>Look — it rains!</s> → Look — it <strong>is raining</strong>!', g: 'RIGHT NOW NEEDS THE PROGRESSIVE' }
+    ]
+  },
+  items: [
+    { id: 's1l2-01', type: 'gap', tag: 'present-simple-event', level: 'A2',
+      lines: [
+        { who: 'Ploy', text: 'Why are you standing at the window?' },
+        { who: 'Nam', text: 'Because it ___ and our taxi is outside.' }
+      ],
+      options: ['rains', 'is raining', 'rain', 'has rain'],
+      answer: 1,
+      why: 'Something in progress at this moment needs the progressive. <em>It rains</em> would be a general fact about the climate, which is not what she means.' },
 
-        { id: 's1l1-05', type: 'choose', tag: 'two-tenses', level: 'B1',
-          stem: 'What does the <em>-ing</em> in <em>we are staying</em> actually tell you?',
-          options: ['That it is happening in the present', 'That the situation is unfinished and we are inside it', 'That it is temporary and nothing else', 'That it is definitely happening now, not later'],
-          answer: 1,
-          why: 'The <em>-ing</em> is aspect, not time. It says the situation is viewed from inside and is not complete — which is why <em>we are staying in Krabi next week</em> is perfectly good English about the future.' },
-
-        { id: 's1l1-06', type: 'build', tag: 'two-tenses', level: 'B1',
-          stem: 'Say that the passports are in your bag right now, using the looking-back aspect.',
-          tiles: ['I', 'have', 'already', 'packed', 'the', 'passports.'],
-          solution: 'I have already packed the passports.',
-          why: '<em>Have</em> + past participle looks back at an earlier event from where you stand now. The tense is non-past; the aspect does the looking back.' }
-      ]
-    },
-
-    {
-      id: 's1l2', name: 'Why the present simple is not about now', cefr: 'A2',
-      theory: {
-        key: 'A whole event will not fit inside this instant — so the present simple means habit, fact or timetable.',
-        body: [
-          'Stand up and walk across the room. Ask someone to describe it. Nobody says <em>you walk</em>. Everybody says <em>you are walking</em>. That is not a rule anyone taught you — it is the grammar refusing an impossible reading.',
-          'Here is why. The present simple views an event as a <strong>complete whole</strong>. But a complete event cannot fit inside the moment of speaking: by the time you have finished saying <em>I open my suitcase</em>, the opening is already over. So English quietly pushes the present simple onto the three meanings where completeness makes sense.',
-          '<strong>Habit</strong> — a whole event, repeated: <em>We go to Hua Hin every April.</em> <strong>Permanent fact</strong> — something simply true: <em>The beach faces west.</em> <strong>Timetable</strong> — a schedule, which is a present fact about the world even though the event is in the future: <em>The ferry leaves at 07:15.</em>',
-          'There are three small places where the present simple really is about this instant, and they are worth knowing because they are the exceptions that prove the rule: live commentary (<em>he passes to Bunmee, he shoots</em>), demonstrations (<em>now I add the chilli</em>), and performatives, where saying the words IS the action (<em>I promise</em>, <em>I apologise</em>).',
-          'One more use that surprises learners: the <strong>historic present</strong>. <em>So we get to the hotel, and there is no booking.</em> That is a past story told in present forms, to make it feel live. Thai, English and most languages do this.'
-        ],
-        simple: [
-          'The present simple is <strong>not</strong> for things happening right now.',
-          'Use it for: <strong>habits</strong> (we go every year), <strong>facts</strong> (the beach faces west), <strong>timetables</strong> (the ferry leaves at 07:15).',
-          'For right now, use <em>am / is / are + -ing</em>: <em>I am packing</em>.',
-          'Small exceptions: sports commentary, cooking demonstrations, and <em>I promise</em> / <em>I apologise</em>.'
-        ],
-        examples: [
-          { s: 'We <strong>go</strong> to Phuket every March.', g: 'HABIT — A WHOLE EVENT, REPEATED' },
-          { s: 'The last bus <strong>leaves</strong> at 22:40.', g: 'TIMETABLE — A PRESENT FACT ABOUT A FUTURE EVENT' },
-          { s: '<s>Look — it rains!</s> → Look — it <strong>is raining</strong>!', g: 'RIGHT NOW NEEDS THE PROGRESSIVE' }
-        ]
-      },
+    { id: 's1l2-02', type: 'sort', tag: 'present-simple-event', level: 'B1',
+      stem: 'Every sentence here uses the present simple. What is each one doing?',
+      bins: [
+        { key: 'habit', label: 'Habit', hint: 'repeated whole events' },
+        { key: 'fact', label: 'Fact', hint: 'simply true' },
+        { key: 'time', label: 'Timetable', hint: 'a published schedule' }
+      ],
       items: [
-        { id: 's1l2-01', type: 'gap', tag: 'present-simple-event', level: 'A2',
-          lines: [
-            { who: 'Ploy', text: 'Why are you standing at the window?' },
-            { who: 'Nam', text: 'Because it ___ and our taxi is outside.' }
-          ],
-          options: ['rains', 'is raining', 'rain', 'has rain'],
-          answer: 1,
-          why: 'Something in progress at this moment needs the progressive. <em>It rains</em> would be a general fact about the climate, which is not what she means.' },
+        { text: 'We visit my grandmother every Songkran.', bin: 'habit' },
+        { text: 'I always lose one sandal.', bin: 'habit' },
+        { text: 'Chiang Mai lies in a valley.', bin: 'fact' },
+        { text: 'The island has no airport.', bin: 'fact' },
+        { text: 'Our train departs at 06:40.', bin: 'time' },
+        { text: 'The tour starts at nine on Thursday.', bin: 'time' }
+      ],
+      why: 'Notice what is missing: no box for "happening right now". The present simple has no such use with action verbs, and that gap is the whole point of the lesson.' },
 
-        { id: 's1l2-02', type: 'sort', tag: 'present-simple-event', level: 'B1',
-          stem: 'Every sentence here uses the present simple. What is each one doing?',
-          bins: [
-            { key: 'habit', label: 'Habit', hint: 'repeated whole events' },
-            { key: 'fact', label: 'Fact', hint: 'simply true' },
-            { key: 'time', label: 'Timetable', hint: 'a published schedule' }
-          ],
-          items: [
-            { text: 'We visit my grandmother every Songkran.', bin: 'habit' },
-            { text: 'I always lose one sandal.', bin: 'habit' },
-            { text: 'Chiang Mai lies in a valley.', bin: 'fact' },
-            { text: 'The museum closes on Mondays.', bin: 'fact' },
-            { text: 'Our train departs at 06:40.', bin: 'time' },
-            { text: 'The tour starts at nine on Thursday.', bin: 'time' }
-          ],
-          why: 'Notice what is missing: no box for "happening right now". The present simple has no such use with action verbs, and that gap is the whole point of the lesson.' },
+    { id: 's1l2-03', type: 'choose', tag: 'present-simple-event', level: 'B1',
+      stem: 'Which sentence is the odd one out — the only one where the present simple really does describe this moment?',
+      options: ['We stay at the Nara Guest House whenever we visit.', 'The bus takes forty minutes from the airport.', 'I promise I will send you a postcard.', 'The tour leaves from the north gate at ten.'],
+      answer: 2,
+      why: 'A performative: saying <em>I promise</em> does not describe the promising, it IS the promising. The event and the sentence take exactly the same amount of time, so for once a whole event fits inside "now".' },
 
-        { id: 's1l2-03', type: 'choose', tag: 'present-simple-event', level: 'B1',
-          stem: 'Which sentence is the odd one out — the only one where the present simple really does describe this moment?',
-          options: ['We stay at the Nara Guest House whenever we visit.', 'The bus takes forty minutes from the airport.', 'I promise I will send you a postcard.', 'The tour leaves from the north gate at ten.'],
-          answer: 2,
-          why: 'A performative: saying <em>I promise</em> does not describe the promising, it IS the promising. The event and the sentence take exactly the same amount of time, so for once a whole event fits inside "now".' },
+    { id: 's1l2-04', type: 'spot', tag: 'present-simple-event', level: 'A2',
+      stem: 'Click the wrong word.',
+      words: ['Sorry,', 'I', 'cannot', 'talk', '—', 'we', 'board', 'the', 'plane', 'right', 'now.'],
+      answer: 6, fix: 'are boarding',
+      why: '<em>Right now</em> forces the progressive. <em>We board the plane</em> could only mean a habit, and nobody boards a plane habitually at this second.' },
 
-        { id: 's1l2-04', type: 'spot', tag: 'present-simple-event', level: 'A2',
-          stem: 'Click the wrong word.',
-          words: ['Sorry,', 'I', 'cannot', 'talk', '—', 'we', 'board', 'the', 'plane', 'right', 'now.'],
-          answer: 6, fix: 'are boarding',
-          why: '<em>Right now</em> forces the progressive. <em>We board the plane</em> could only mean a habit, and nobody boards a plane habitually at this second.' },
+    { id: 's1l2-05', type: 'judge', tag: 'present-simple-event', level: 'B1+',
+      given: 'So we arrive at the hotel at midnight, and the man on the desk tells us there is no booking.',
+      stem: 'Is this speaker describing something happening now?',
+      answer: 1,
+      why: 'No — this is the historic present. Present forms are telling a past story, to make the listener feel they are there. Very common in spoken holiday anecdotes, in English and in Thai.' },
 
-        { id: 's1l2-05', type: 'judge', tag: 'present-simple-event', level: 'B1+',
-          given: 'So we arrive at the hotel at midnight, and the man on the desk tells us there is no booking.',
-          stem: 'Is this speaker describing something happening now?',
-          answer: 1,
-          why: 'No — this is the historic present. Present forms are telling a past story, to make the listener feel they are there. Very common in spoken holiday anecdotes, in English and in Thai.' },
+    { id: 's1l2-06', type: 'equiv', tag: 'present-simple-event', level: 'B1',
+      given: 'The hotel serves breakfast until ten.',
+      stem: 'Which is closest in meaning?',
+      options: ['Breakfast is being served at this moment.', 'That is the hotel\'s standing arrangement, true every day.', 'Breakfast will be served tomorrow only.', 'Breakfast finished at ten today.'],
+      answer: 1,
+      why: 'A present simple with an institution as subject reports a standing arrangement — a fact about how the world is set up, not an event in progress.' }
+  ]
+},
 
-        { id: 's1l2-06', type: 'equiv', tag: 'present-simple-event', level: 'B1',
-          given: 'The hotel serves breakfast until ten.',
-          stem: 'Which is closest in meaning?',
-          options: ['Breakfast is being served at this moment.', 'That is the hotel\'s standing arrangement, true every day.', 'Breakfast will be served tomorrow only.', 'Breakfast finished at ten today.'],
-          answer: 1,
-          why: 'A present simple with an institution as subject reports a standing arrangement — a fact about how the world is set up, not an event in progress.' }
-      ]
-    },
+{
+  id: 's1l3', name: 'The progressive: inside an unfinished thing', cefr: 'B1',
+  theory: {
+    key: 'The progressive does not mean "now". It means unfinished, seen from the inside.',
+    body: [
+      'Most textbooks say <em>be + -ing</em> is "the now tense". That definition breaks immediately: <em>I am reading a book about Tokyo</em> is true even while you are asleep, and <em>we are flying to Osaka on Tuesday</em> is about next week.',
+      'One meaning explains all of it. The progressive puts you <strong>inside a situation that is not complete</strong>. From there, four uses follow naturally.',
+      '<strong>In progress at this moment</strong>: <em>She is checking in.</em> <strong>In progress around now</strong>, though not this second: <em>I am learning Japanese before the trip.</em> <strong>Temporary rather than permanent</strong>: <em>We are staying with my aunt</em> means a visit; <em>we live with my aunt</em> means an address.',
+      'The fourth use is future, and it belongs to Leg 5: <em>we are flying on Tuesday</em>. The arrangement already exists and is running; the flight is the part that has not happened yet.',
+      'There is also an emotional use worth knowing. <em>Always</em> plus a progressive means the speaker is irritated: <em>He is always losing his boarding pass.</em> Compare <em>he always loses his boarding pass</em> — a neutral report of a habit. The progressive turns it into a complaint, because it frames an endless, unfinished nuisance.',
+      'Finally: some verbs describe <strong>states</strong>, not activities — <em>know, belong, contain, seem</em>. A state has no inside to stand in, so it resists the progressive. <em>I am knowing the way</em> is not English. Leg 8 comes back to the interesting cases where forcing it changes the meaning instead of breaking the sentence.'
+    ],
+    simple: [
+      'The progressive means <strong>unfinished</strong>, not "now".',
+      'Four uses: happening now; happening around now; temporary; and a future arrangement.',
+      '<em>We are staying with my aunt</em> = a visit. <em>We live with my aunt</em> = our address.',
+      '<em>Always</em> + <em>-ing</em> shows you are annoyed: <em>He is always losing his ticket.</em>',
+      'Some verbs (know, belong, seem) describe states and do not take <em>-ing</em>.'
+    ],
+    examples: [
+      { s: 'We <strong>are staying</strong> at a guest house this week.', g: 'TEMPORARY — A PERMANENT HOME WOULD BE "WE LIVE"' },
+      { s: 'She <strong>is always leaving</strong> her sunglasses on the bus.', g: 'ALWAYS + -ING = IRRITATION, NOT FREQUENCY' },
+      { s: '<s>I am knowing the timetable.</s> → I <strong>know</strong> the timetable.', g: 'A STATE HAS NO INSIDE TO STAND IN' }
+    ]
+  },
+  items: [
+    { id: 's1l3-01', type: 'equiv', tag: 'progressive-core', level: 'B1',
+      given: 'We are staying in Hua Hin.',
+      stem: 'Which is the natural reading?',
+      options: ['Hua Hin is our permanent home.', 'It is a temporary stay — a holiday or a visit.', 'We stay there every single year.', 'We are on our way to Hua Hin at this moment.'],
+      answer: 1,
+      why: 'Unfinished means temporary. To say where you permanently live, English uses the simple: <em>we live in Hua Hin</em>.' },
 
-    {
-      id: 's1l3', name: 'The progressive: inside an unfinished thing', cefr: 'B1',
-      theory: {
-        key: 'The progressive does not mean "now". It means unfinished, seen from the inside.',
-        body: [
-          'Most textbooks say <em>be + -ing</em> is "the now tense". That definition breaks immediately: <em>I am reading a book about Tokyo</em> is true even while you are asleep, and <em>we are flying to Osaka on Tuesday</em> is about next week.',
-          'One meaning explains all of it. The progressive puts you <strong>inside a situation that is not complete</strong>. From there, four uses follow naturally.',
-          '<strong>In progress at this moment</strong>: <em>She is checking in.</em> <strong>In progress around now</strong>, though not this second: <em>I am learning Japanese before the trip.</em> <strong>Temporary rather than permanent</strong>: <em>We are staying with my aunt</em> means a visit; <em>we live with my aunt</em> means an address.',
-          'The fourth use is future, and it belongs to Leg 5: <em>we are flying on Tuesday</em>. The arrangement already exists and is running; the flight is the part that has not happened yet.',
-          'There is also an emotional use worth knowing. <em>Always</em> plus a progressive means the speaker is irritated: <em>He is always losing his boarding pass.</em> Compare <em>he always loses his boarding pass</em> — a neutral report of a habit. The progressive turns it into a complaint, because it frames an endless, unfinished nuisance.',
-          'Finally: some verbs describe <strong>states</strong>, not activities — <em>know, belong, contain, seem</em>. A state has no inside to stand in, so it resists the progressive. <em>I am knowing the way</em> is not English. Leg 8 comes back to the interesting cases where forcing it changes the meaning instead of breaking the sentence.'
-        ],
-        simple: [
-          'The progressive means <strong>unfinished</strong>, not "now".',
-          'Four uses: happening now; happening around now; temporary; and a future arrangement.',
-          '<em>We are staying with my aunt</em> = a visit. <em>We live with my aunt</em> = our address.',
-          '<em>Always</em> + <em>-ing</em> shows you are annoyed: <em>He is always losing his ticket.</em>',
-          'Some verbs (know, belong, seem) describe states and do not take <em>-ing</em>.'
-        ],
-        examples: [
-          { s: 'We <strong>are staying</strong> at a guest house this week.', g: 'TEMPORARY — A PERMANENT HOME WOULD BE "WE LIVE"' },
-          { s: 'She <strong>is always leaving</strong> her sunglasses on the bus.', g: 'ALWAYS + -ING = IRRITATION, NOT FREQUENCY' },
-          { s: '<s>I am knowing the timetable.</s> → I <strong>know</strong> the timetable.', g: 'A STATE HAS NO INSIDE TO STAND IN' }
-        ]
-      },
+    { id: 's1l3-02', type: 'choose', tag: 'progressive-core', level: 'B1',
+      stem: 'What is the difference between "He always forgets his charger" and "He is always forgetting his charger"?',
+      options: ['The second one happens more often.', 'The second one is happening right now.', 'The second one shows the speaker is annoyed.', 'There is no difference at all.'],
+      answer: 2,
+      why: 'Both report the same habit. The progressive frames it as an endless unfinished nuisance, and that framing is heard as a complaint.' },
+
+    { id: 's1l3-03', type: 'spot', tag: 'progressive-core', level: 'B1',
+      stem: 'Click the wrong word.',
+      words: ['I', 'am', 'not', 'believing', 'that', 'the', 'flight', 'is', 'cancelled', 'again.'],
+      answer: 3, fix: 'do not believe',
+      why: '<em>Believe</em> is a state. There is no activity of believing to stand inside. Native speakers do say <em>I am not believing this</em> as deliberate exaggeration, but it is a stylistic effect, not the neutral form.' },
+
+    { id: 's1l3-04', type: 'gap', tag: 'progressive-core', level: 'B1',
+      lines: [
+        { who: 'Fon', text: 'You have got a lot of guidebooks out.' },
+        { who: 'Ice', text: 'I ___ Japanese before we go in October.' }
+      ],
+      options: ['learn', 'am learning', 'have learnt', 'will learn'],
+      answer: 1,
+      why: 'In progress around now, not at this exact second. This is the commonest use of the progressive and the one that proves it does not mean "this instant".' },
+
+    { id: 's1l3-05', type: 'sort', tag: 'progressive-core', level: 'B1+',
+      stem: 'Which of these verbs will take <em>-ing</em> comfortably in a holiday sentence?',
+      bins: [
+        { key: 'yes', label: 'Takes -ing easily', hint: 'an activity you can be inside' },
+        { key: 'no', label: 'Resists -ing', hint: 'a state, with no inside' }
+      ],
       items: [
-        { id: 's1l3-01', type: 'equiv', tag: 'progressive-core', level: 'B1',
-          given: 'We are staying in Hua Hin.',
-          stem: 'Which is the natural reading?',
-          options: ['Hua Hin is our permanent home.', 'It is a temporary stay — a holiday or a visit.', 'We stay there every single year.', 'We are on our way to Hua Hin at this moment.'],
-          answer: 1,
-          why: 'Unfinished means temporary. To say where you permanently live, English uses the simple: <em>we live in Hua Hin</em>.' },
+        { text: 'queue', bin: 'yes' }, { text: 'sunbathe', bin: 'yes' }, { text: 'argue', bin: 'yes' },
+        { text: 'belong', bin: 'no' }, { text: 'contain', bin: 'no' }, { text: 'cost', bin: 'no' }
+      ],
+      why: 'You can stand inside queuing, sunbathing and arguing. A suitcase does not spend the afternoon busily belonging to you — states simply hold.' },
 
-        { id: 's1l3-02', type: 'choose', tag: 'progressive-core', level: 'B1',
-          stem: 'What is the difference between "He always forgets his charger" and "He is always forgetting his charger"?',
-          options: ['The second one happens more often.', 'The second one is happening right now.', 'The second one shows the speaker is annoyed.', 'There is no difference at all.'],
-          answer: 2,
-          why: 'Both report the same habit. The progressive frames it as an endless unfinished nuisance, and that framing is heard as a complaint.' },
+    { id: 's1l3-06', type: 'build', tag: 'progressive-core', level: 'B1',
+      stem: 'Your friend rings while you are in the departure queue. Tell her what is happening at this moment.',
+      tiles: ['We', 'are', 'queuing', 'for', 'security', 'at', 'the', 'moment.'],
+      solution: 'We are queuing for security at the moment.',
+      why: 'An activity in progress, and you are inside it. The simple would turn it into a habit, which would be an odd thing to say on the phone.' },
 
-        { id: 's1l3-03', type: 'spot', tag: 'progressive-core', level: 'B1',
-          stem: 'Click the wrong word.',
-          words: ['I', 'am', 'not', 'believing', 'that', 'the', 'flight', 'is', 'cancelled', 'again.'],
-          answer: 3, fix: 'do not believe',
-          why: '<em>Believe</em> is a state. There is no activity of believing to stand inside. Native speakers do say <em>I am not believing this</em> as deliberate exaggeration, but it is a stylistic effect, not the neutral form.' },
-
-        { id: 's1l3-04', type: 'gap', tag: 'progressive-core', level: 'B1',
-          lines: [
-            { who: 'Fon', text: 'You have got a lot of guidebooks out.' },
-            { who: 'Ice', text: 'I ___ Japanese before we go in October.' }
-          ],
-          options: ['learn', 'am learning', 'have learnt', 'will learn'],
-          answer: 1,
-          why: 'In progress around now, not at this exact second. This is the commonest use of the progressive and the one that proves it does not mean "this instant".' },
-
-        { id: 's1l3-05', type: 'sort', tag: 'progressive-core', level: 'B1+',
-          stem: 'Which of these verbs will take <em>-ing</em> comfortably in a holiday sentence?',
-          bins: [
-            { key: 'yes', label: 'Takes -ing easily', hint: 'an activity you can be inside' },
-            { key: 'no', label: 'Resists -ing', hint: 'a state, with no inside' }
-          ],
-          items: [
-            { text: 'queue', bin: 'yes' }, { text: 'sunbathe', bin: 'yes' }, { text: 'argue', bin: 'yes' },
-            { text: 'belong', bin: 'no' }, { text: 'contain', bin: 'no' }, { text: 'cost', bin: 'no' }
-          ],
-          why: 'You can stand inside queuing, sunbathing and arguing. A suitcase does not spend the afternoon busily belonging to you — states simply hold.' },
-
-        { id: 's1l3-06', type: 'build', tag: 'progressive-core', level: 'B1',
-          stem: 'Your friend rings while you are in the departure queue. Tell her what is happening at this moment.',
-          tiles: ['We', 'are', 'queuing', 'for', 'security', 'at', 'the', 'moment.'],
-          solution: 'We are queuing for security at the moment.',
-          why: 'An activity in progress, and you are inside it. The simple would turn it into a habit, which would be an odd thing to say on the phone.' },
-
-        { id: 's1l3-07', type: 'judge', tag: 'progressive-core', level: 'B1+',
-          given: 'We are flying to Osaka on Tuesday.',
-          stem: 'Is this sentence about something happening now?',
-          answer: 1,
-          why: 'No, it is about next Tuesday — and it is still a perfectly ordinary progressive. What is unfinished and in progress is the <em>arrangement</em>. Leg 5 takes this apart properly.' }
-      ]
-    }
+    { id: 's1l3-07', type: 'judge', tag: 'progressive-core', level: 'B1+',
+      given: 'We are flying to Osaka on Tuesday.',
+      stem: 'Is this sentence about something happening now?',
+      answer: 1,
+      why: 'No, it is about next Tuesday — and it is still a perfectly ordinary progressive. What is unfinished and in progress is the <em>arrangement</em>. Leg 5 takes this apart properly.' }
   ]
 });
 
